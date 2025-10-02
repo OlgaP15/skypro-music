@@ -22,7 +22,7 @@ export default function Sidebar() {
                 src="/img/playlist01.png"
                 alt="day's playlist"
                 width={250}
-                height={170}
+                height={150}
               />
             </Link>
           </div>
@@ -33,7 +33,7 @@ export default function Sidebar() {
                 src="/img/playlist02.png"
                 alt="day's playlist"
                 width={250}
-                height={170}
+                height={150}
               />
             </Link>
           </div>
@@ -44,7 +44,7 @@ export default function Sidebar() {
                 src="/img/playlist03.png"
                 alt="day's playlist"
                 width={250}
-                height={170}
+                height={150}
               />
             </Link>
           </div>
