@@ -5,7 +5,7 @@ import Centerblock from '@/components/Centerblock/Centerblock';
 import Navigation from '@/components/Navigation/Navigation';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
-export default function Home() {
+export default function DailyPlaylistPage() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
