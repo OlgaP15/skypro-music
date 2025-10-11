@@ -37,7 +37,7 @@ export default function Navigation() {
                 </li>
                 <li className={styles.menu__item}>
                   <Link href="#" className={styles.menu__link}>
-                    Мой плейлист
+                    Мой треки
                   </Link>
                 </li>
                 <li className={styles.menu__item}>

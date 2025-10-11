@@ -39,7 +39,8 @@ export default function FilterItem({
             >
               {item}
               {title !== "Годы" && (
-                <span style={{ 
+                <span style={{
+                  display: 'none', 
                   marginLeft: 'auto', 
                   fontSize: '14px', 
                   opacity: 0.7 
