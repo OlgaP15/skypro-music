@@ -21,6 +21,13 @@
   color: #ffffff;
 }
 
+.filter__buttons {
+  display: flex;
+  flex-direction: row; 
+  align-items: center;
+  gap: 10px; 
+}
+
 .filter__button {
   /*composes: btn-text from '/src/UI/Button/button.module.css';*/
   font-style: normal;
