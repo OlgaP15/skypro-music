@@ -23,13 +23,12 @@
 
 .filter__buttons {
   display: flex;
-  flex-direction: row; 
+  flex-direction: row;
   align-items: center;
-  gap: 10px; 
+  gap: 10px;
 }
 
 .filter__button {
-  /*composes: btn-text from '/src/UI/Button/button.module.css';*/
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -38,8 +37,10 @@
   border-radius: 60px;
   padding: 6px 20px;
   color: #ffffff;
+  position: relative;
 }
 
+/* Убираем старый отступ, так как используем gap */
 .filter__button:not(:last-child) {
-  margin-right: 10px;
+  margin-right: 0;
 }

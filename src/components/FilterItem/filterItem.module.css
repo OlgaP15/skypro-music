@@ -1,3 +1,4 @@
+/* Контейнер всплывающего фильтра */
 .filter__popup {
   position: absolute;
   top: 100%;
@@ -16,6 +17,7 @@
   opacity: 1;
 }
 
+/* ✅ Список с вертикальным скроллом */
 .filter__list {
   color: white;
   display: flex;
@@ -29,9 +31,10 @@
   font-weight: 400;
   font-style: normal;
   font-size: 20px;
-  font-feature-settings: 'lnum' 1, 'pnum' 1; 
+  font-feature-settings: 'lnum' 1, 'pnum' 1;
 }
 
+/* Стилизация скролла */
 .filter__list::-webkit-scrollbar {
   width: 4px;
 }
@@ -45,6 +48,7 @@
   border-radius: 2px;
 }
 
+/* Элементы списка */
 .filter__item {
   font-family: 'StratosSkyeng', sans-serif;
   font-weight: 400;
@@ -52,11 +56,25 @@
   line-height: 24px;
   color: #fff;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
   font-feature-settings: 'lnum' 1, 'pnum' 1;
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
 }
 
 .filter__item:hover {
   color: #b672ff;
   text-decoration: underline;
+}
+
+/* Выбранный элемент */
+.filter__item.selected {
+  color: #b672ff;
+  font-weight: 500;
+}
+
+.filter__item.selected:hover {
+  color: #9a4dff;
+  text-decoration: line-through;
 }
