@@ -24,10 +24,6 @@
   border-color: #ffffff;
 }
 
-.filter__button:not(:last-child) {
-  margin-right: 10px;
-}
-
 .filter__button:hover {
   background: rgba(255, 255, 255, 0.1);
 }
@@ -37,7 +33,7 @@
 }
 
 /* Стили для круглого бейджа с количеством */
-.count__badge {
+/*.count__badge {
   background: rgba(182, 114, 255, 0.8);
   color: white;
   border-radius: 50%;
@@ -52,10 +48,10 @@
   top: -8px;
   right: -8px;
   border: 2px solid #000000;
-}
+}*/
 
 /* Если нет выбранных элементов, показываем общее количество серым цветом */
-.count__badge:not(.hasSelection) {
+/*.count__badge:not(.hasSelection) {
   background: rgba(255, 255, 255, 0.3);
   color: #ffffff;
-}
+}*/

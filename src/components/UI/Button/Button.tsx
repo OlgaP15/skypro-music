@@ -9,15 +9,15 @@ interface ButtonProps {
   onClick: () => void;
 }
 
-export default function Button({ 
-  nameFilter, 
-  activeFilter, 
+export default function Button({
+  nameFilter,
+  activeFilter,
   selectedCount = 0,
-  totalCount = 0,
-  onClick 
+  //totalCount = 0,
+  onClick,
 }: ButtonProps) {
   const hasSelection = selectedCount > 0;
-  const displayCount = hasSelection ? selectedCount : totalCount;
+  //const displayCount = hasSelection ? selectedCount : totalCount;
 
   return (
     <button
@@ -27,13 +27,17 @@ export default function Button({
       onClick={onClick}
     >
       {nameFilter}
+      {/*
       {displayCount > 0 && (
-        <span className={classNames(styles.count__badge, {
-          [styles.hasSelection]: hasSelection
-        })}>
+        <span
+          className={classNames(styles.count__badge, {
+            [styles.hasSelection]: hasSelection,
+          })}
+        >
           {displayCount}
         </span>
       )}
+      */}
     </button>
   );
 }
