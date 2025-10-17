@@ -2,7 +2,7 @@
 
 import styles from './track.module.css';
 import { TrackTypes } from '@/SharedTypes/sharedTypes';
-import { useAppDispatch } from '@/store/store';
+import { useAppDispatch, useAppSelector } from '@/store/store';
 import { formatTime } from '@/utils/helper';
 import Link from 'next/link';
 import { setCurrentTrack } from '@/store/features/trackSlice';
@@ -13,18 +13,32 @@ type trackTypeProp = {
 
 export default function Track({ track }: trackTypeProp) {
   const dispatch = useAppDispatch();
+  const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
+  const isPlay = useAppSelector((state) => state.tracks.isPlay);
+
+  const isCurrent = currentTrack && currentTrack._id === track._id;
 
   const handleTrackClick = () => {
     dispatch(setCurrentTrack(track));
+    dispatch({ type: 'tracks/setIsPlay', payload: true });
   };
+
   return (
     <div className={styles.playlist__item} onClick={handleTrackClick}>
       <div className={styles.playlist__track}>
         <div className={styles.track__title}>
-          <div className={styles.track__titleImage}>
+          <div
+            className={styles.track__titleImage}
+            style={{ position: 'relative' }}
+          >
             <svg className={styles.track__titleSvg}>
               <use xlinkHref="/img/icon/sprite.svg#icon-note"></use>
             </svg>
+            {isCurrent && (
+              <span
+                className={isPlay ? styles.pulseDot : styles.staticDot}
+              ></span>
+            )}
           </div>
           <div className="track__title-text">
             <Link className={styles.track__titleLink} href="">

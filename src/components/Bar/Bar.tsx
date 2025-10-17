@@ -3,15 +3,29 @@
 import Link from 'next/link';
 import styles from './bar.module.css';
 import classnames from 'classnames';
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { setIsPlay } from '@/store/features/trackSlice';
+import Image from 'next/image';
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
   const isPlay = useAppSelector((state) => state.tracks.isPlay);
   const dispatch = useAppDispatch();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [volume, setVolume] = useState(1);
+
+  useEffect(() => {
+    if (audioRef.current && isPlay && currentTrack) {
+      audioRef.current.play().catch(() => {});
+    }
+  }, [currentTrack, isPlay]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
   const handlePlayPause = () => {
     if (!audioRef.current) return;
@@ -31,16 +45,22 @@ export default function Bar() {
 
   return (
     <div className={styles.bar}>
-      <audio ref={audioRef} controls src={currentTrack?.track_file}></audio>
+      <audio ref={audioRef} src={currentTrack?.track_file}></audio>
       <div className={styles.bar__content}>
         <div className={styles.bar__playerProgress}></div>
         <div className={styles.bar__playerBlock}>
           <div className={styles.bar__player}>
             <div className={styles.player__controls}>
-              <div className={styles.player__btnPrev}>
-                <svg className={styles.player__btnPrevSvg}>
-                  <use xlinkHref="/img/icon/sprite.svg#icon-prev"></use>
-                </svg>
+              <div
+                className={styles.player__btnPrev}
+                onClick={() => alert('Еще не реализовано')}
+              >
+                <Image
+                  src="/img/icon/prev.svg"
+                  alt="prev"
+                  width={15}
+                  height={14}
+                />
               </div>
               <div
                 className={classnames(styles.player__btnPlay, styles.btn)}
@@ -53,7 +73,19 @@ export default function Bar() {
                 </svg>
               </div>
               <div
+                className={styles.player__btnNext}
+                onClick={() => alert('Еще не реализовано')}
+              >
+                <Image
+                  src="/img/icon/next.svg"
+                  alt="next"
+                  width={15}
+                  height={14}
+                />
+              </div>
+              <div
                 className={classnames(styles.player__btnRepeat, styles.btnIcon)}
+                onClick={() => alert('Еще не реализовано')}
               >
                 <svg className={styles.player__btnRepeatSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-repeat"></use>
@@ -64,6 +96,7 @@ export default function Bar() {
                   styles.player__btnShuffle,
                   styles.btnIcon0,
                 )}
+                onClick={() => alert('Еще не реализовано')}
               >
                 <svg className={styles.player__btnShuffleSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-shuffle"></use>
@@ -129,6 +162,11 @@ export default function Bar() {
                   )}
                   type="range"
                   name="range"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={volume}
+                  onChange={(e) => setVolume(Number(e.target.value))}
                 />
               </div>
             </div>
