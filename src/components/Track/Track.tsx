@@ -5,7 +5,7 @@ import { TrackTypes } from '@/SharedTypes/sharedTypes';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { formatTime } from '@/utils/helper';
 import Link from 'next/link';
-import { setCurrentTrack } from '@/store/features/trackSlice';
+import { setCurrentTrack, setIsPlay } from '@/store/features/trackSlice';
 
 type trackTypeProp = {
   track: TrackTypes;
@@ -19,8 +19,8 @@ export default function Track({ track }: trackTypeProp) {
   const isCurrent = currentTrack && currentTrack._id === track._id;
 
   const handleTrackClick = () => {
-    dispatch(setCurrentTrack(track));
-    dispatch({ type: 'tracks/setIsPlay', payload: true });
+    dispatch(setCurrentTrack(track)); 
+    dispatch(setIsPlay(true));   
   };
 
   return (

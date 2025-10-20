@@ -14,7 +14,6 @@ export default function FilterItem({
   selectedValues, 
   onSelect 
 }: FilterItemProps) {
-  // Для годов выпуска используем специальные опции сортировки
   const getYearOptions = () => {
     return ["По умолчанию", "Сначала новые", "Сначала старые"];
   };

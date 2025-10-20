@@ -41,7 +41,7 @@ export default function Bar() {
     }
   };
 
-  if (!currentTrack) return <></>;
+  if (!currentTrack) return <></>; 
 
   return (
     <div className={styles.bar}>
@@ -68,7 +68,9 @@ export default function Bar() {
               >
                 <svg className={styles.player__btnPlaySvg}>
                   <use
-                    xlinkHref={`/img/icon/sprite.svg#icon-${isPlay ? 'pause' : 'play'}`}
+                    xlinkHref={`/img/icon/sprite.svg#icon-${
+                      isPlay ? 'pause' : 'play'
+                    }`}
                   ></use>
                 </svg>
               </div>
@@ -111,14 +113,15 @@ export default function Bar() {
                     <use xlinkHref="/img/icon/sprite.svg#icon-note"></use>
                   </svg>
                 </div>
+
                 <div className={styles.trackPlay__author}>
-                  <Link className={styles.trackPlay__authorLink} href="">
-                    Ты та...
+                  <Link className={styles.trackPlay__authorLink} href="#">
+                    {currentTrack.name}
                   </Link>
                 </div>
                 <div className={styles.trackPlay__album}>
-                  <Link className={styles.trackPlay__albumLink} href="">
-                    Баста
+                  <Link className={styles.trackPlay__albumLink} href="#">
+                    {currentTrack.author}
                   </Link>
                 </div>
               </div>
@@ -147,6 +150,7 @@ export default function Bar() {
               </div>
             </div>
           </div>
+
           <div className={styles.bar__volumeBlock}>
             <div className={styles.volume__content}>
               <div className={styles.volume__image}>
