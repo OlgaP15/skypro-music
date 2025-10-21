@@ -107,6 +107,19 @@
   fill: #d9d9d9;
 }
 
+.player__btnPlay {
+  cursor: pointer;
+  margin-right: 23px;
+}
+
+.player__btnPlay:hover svg {
+  fill: #696969;
+}
+
+.player__btnPlay:active svg {
+  fill: #d9d9d9;
+}
+
 .player__btnNext {
   margin-right: 28px;
   fill: #a53939;
@@ -319,7 +332,7 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  background: #1a1a1a;
+  background: #cfc6c6;
   border: 2px solid white;
   border-radius: 50%;
   position: relative;
@@ -349,15 +362,14 @@
   cursor: pointer;
 }
 
-.btn-text {
-  &:hover {
-    border-color: #d9b6ff;
-    color: #d9b6ff;
-    cursor: pointer;
-  }
-  &:active {
-    border-color: #ad61ff;
-    color: #ad61ff;
-    cursor: pointer;
-  }
+.btn-text:hover {
+  border-color: #d9b6ff;
+  color: #d9b6ff;
+  cursor: pointer;
+}
+
+.btn-text:active {
+  border-color: #ad61ff;
+  color: #ad61ff;
+  cursor: pointer;
 }

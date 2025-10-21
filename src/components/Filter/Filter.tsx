@@ -119,7 +119,6 @@ export default function Filter() {
     <div className={styles.centerblock__filter} ref={popupRef}>
       <div className={styles.filter__title}>Искать по:</div>
       <div className={styles.filter__buttons}>
-        {/* Исполнителю */}
         <div style={{ position: 'relative' }}>
           <Button
             nameFilter="исполнителю"
@@ -138,8 +137,6 @@ export default function Filter() {
             />
           )}
         </div>
-
-        {/* Году выпуска */}
         <div style={{ position: 'relative' }}>
           <Button
             nameFilter="году выпуска"
@@ -158,8 +155,6 @@ export default function Filter() {
             />
           )}
         </div>
-
-        {/* Жанру */}
         <div style={{ position: 'relative' }}>
           <Button
             nameFilter="жанру"
