@@ -5,19 +5,69 @@ import styles from './bar.module.css';
 import classnames from 'classnames';
 import { useRef, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import { setIsPlay } from '@/store/features/trackSlice';
-import Image from 'next/image';
+import { setIsPlay, setShuffle, setRepeat, nextTrack, prevTrack } from '@/store/features/trackSlice';
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
   const isPlay = useAppSelector((state) => state.tracks.isPlay);
+  const shuffle = useAppSelector((state) => state.tracks.shuffle);
+  const repeat = useAppSelector((state) => state.tracks.repeat);
   const dispatch = useAppDispatch();
+  
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
   const [volume, setVolume] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const handleEnded = () => {
+    if (repeat) {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+      }
+    } else {
+      dispatch(nextTrack());
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current) return;
+    
+    const progressBar = e.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const clickPosition = e.clientX - rect.left;
+    const progressBarWidth = rect.width;
+    const clickPercentage = clickPosition / progressBarWidth;
+    
+    const newTime = clickPercentage * duration;
+    setCurrentTime(newTime);
+    audioRef.current.currentTime = newTime;
+  };
 
   useEffect(() => {
     if (audioRef.current && isPlay && currentTrack) {
       audioRef.current.play().catch(() => {});
+    } else if (audioRef.current && !isPlay) {
+      audioRef.current.pause();
     }
   }, [currentTrack, isPlay]);
 
@@ -26,6 +76,10 @@ export default function Bar() {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
+  useEffect(() => {
+    setCurrentTime(0);
+  }, [currentTrack]);
 
   const handlePlayPause = () => {
     if (!audioRef.current) return;
@@ -41,64 +95,99 @@ export default function Bar() {
     }
   };
 
-  if (!currentTrack) return <></>; 
+  const handleShuffle = () => {
+    dispatch(setShuffle(!shuffle));
+  };
+
+  const handleRepeat = () => {
+    dispatch(setRepeat(!repeat));
+  };
+
+  const handleNext = () => {
+    dispatch(nextTrack());
+  };
+
+  const handlePrev = () => {
+    dispatch(prevTrack());
+  };
+
+  if (!currentTrack) return <></>;
+
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className={styles.bar}>
-      <audio ref={audioRef} src={currentTrack?.track_file}></audio>
+      <audio 
+        ref={audioRef} 
+        src={currentTrack?.track_file}
+        onEnded={handleEnded}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+      ></audio>
+      
       <div className={styles.bar__content}>
-        <div className={styles.bar__playerProgress}></div>
+        <div 
+          className={styles.bar__playerProgress} 
+          onClick={handleProgressClick}
+        >
+          <div 
+            className={styles.bar__progressFill}
+            style={{ width: `${progressPercentage}%` }}
+          ></div>
+        </div>
+        
         <div className={styles.bar__playerBlock}>
           <div className={styles.bar__player}>
             <div className={styles.player__controls}>
               <div
-                className={styles.player__btnPrev}
-                onClick={() => alert('Еще не реализовано')}
+                className={classnames(styles.player__btnPrev, styles.btn)}
+                onClick={handlePrev}
               >
-                <Image
-                  src="/img/icon/prev.svg"
-                  alt="prev"
-                  width={15}
-                  height={14}
-                />
+                <svg className={styles.player__btnPrevSvg}>
+                  <use xlinkHref="/img/icon/sprite.svg#icon-prev"></use>
+                </svg>
               </div>
+
               <div
                 className={classnames(styles.player__btnPlay, styles.btn)}
                 onClick={handlePlayPause}
               >
                 <svg className={styles.player__btnPlaySvg}>
                   <use
-                    xlinkHref={`/img/icon/sprite.svg#icon-${
-                      isPlay ? 'pause' : 'play'
-                    }`}
+                    xlinkHref={`/img/icon/sprite.svg#icon-${isPlay ? 'pause' : 'play'}`}
                   ></use>
                 </svg>
               </div>
+
               <div
-                className={styles.player__btnNext}
-                onClick={() => alert('Еще не реализовано')}
+                className={classnames(styles.player__btnNext, styles.btn)}
+                onClick={handleNext}
               >
-                <Image
-                  src="/img/icon/next.svg"
-                  alt="next"
-                  width={15}
-                  height={14}
-                />
+                <svg className={styles.player__btnNextSvg}>
+                  <use xlinkHref="/img/icon/sprite.svg#icon-next"></use>
+                </svg>
               </div>
+
               <div
-                className={classnames(styles.player__btnRepeat, styles.btnIcon)}
-                onClick={() => alert('Еще не реализовано')}
+                className={classnames(
+                  styles.player__btnRepeat, 
+                  styles.btnIcon,
+                  { [styles.active]: repeat }
+                )}
+                onClick={handleRepeat}
               >
                 <svg className={styles.player__btnRepeatSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-repeat"></use>
                 </svg>
               </div>
+ 
               <div
                 className={classnames(
                   styles.player__btnShuffle,
-                  styles.btnIcon0,
+                  styles.btnIcon,
+                  { [styles.active]: shuffle }
                 )}
-                onClick={() => alert('Еще не реализовано')}
+                onClick={handleShuffle}
               >
                 <svg className={styles.player__btnShuffleSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-shuffle"></use>
@@ -126,10 +215,10 @@ export default function Bar() {
                 </div>
               </div>
 
-              <div className={styles.trackPlay__dislike}>
+              <div className={styles.trackPlay__likeDis}>
                 <div
                   className={classnames(
-                    styles.player__btnShuffle,
+                    styles.trackPlay__like,
                     styles.btnIcon,
                   )}
                 >
@@ -149,6 +238,16 @@ export default function Bar() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className={styles.player__time}>
+            <span className={styles.player__currentTime}>
+              {formatTime(currentTime)}
+            </span>
+            <span> / </span>
+            <span className={styles.player__duration}>
+              {formatTime(duration)}
+            </span>
           </div>
 
           <div className={styles.bar__volumeBlock}>
