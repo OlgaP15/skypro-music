@@ -1,11 +1,22 @@
+'use client'; 
+
 import styles from './centerblock.module.css';
 import classnames from 'classnames';
 import Search from '../Search/Search';
 import { data } from '@/data';
 import Filter from '../Filter/Filter';
 import Track from '../Track/Track';
+import { useAppDispatch } from '@/store/store';
+import { setCurrentPlaylist } from '@/store/features/trackSlice';
+import { useEffect } from 'react';
 
 export default function Centerblock() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setCurrentPlaylist(data));
+  }, [dispatch]);
+
   return (
     <div className={styles.centerblock}>
       <Search />
@@ -30,7 +41,7 @@ export default function Centerblock() {
         </div>
         <div className={styles.content__playlist}>
           {data.map((track, index) => (
-            <Track track={track} key={index} />
+            <Track track={track} key={track._id} index={index} />
           ))}
         </div>
       </div>
