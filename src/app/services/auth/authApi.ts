@@ -1,7 +1,5 @@
-// app/services/auth/authApi.ts
 const BASE_URL = 'https://webdev-music-003b5b991590.herokuapp.com';
 
-// Регистрация пользователя
 export const registerUser = async (email: string, password: string, username: string) => {
   try {
     const response = await fetch(`${BASE_URL}/user/signup/`, {
@@ -27,7 +25,6 @@ export const registerUser = async (email: string, password: string, username: st
   }
 };
 
-// Вход пользователя - возвращает данные пользователя
 export const loginUser = async (email: string, password: string) => {
   try {
     const response = await fetch(`${BASE_URL}/user/login/`, {
@@ -53,7 +50,6 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
-// Получение токенов
 export const getTokens = async (email: string, password: string) => {
   try {
     const response = await fetch(`${BASE_URL}/user/token/`, {
@@ -79,7 +75,6 @@ export const getTokens = async (email: string, password: string) => {
   }
 };
 
-// Обновление токена
 export const refreshToken = async (refreshToken: string) => {
   try {
     const response = await fetch(`${BASE_URL}/user/token/refresh/`, {

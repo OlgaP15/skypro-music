@@ -1,4 +1,3 @@
-// app/auth/signin/page.tsx
 'use client';
 
 import styles from './signin.module.css';
@@ -17,12 +16,10 @@ export default function Signin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Очищаем ошибки при монтировании
   useEffect(() => {
     dispatch(clearError());
   }, [dispatch]);
 
-  // Редирект если уже авторизован
   useEffect(() => {
     if (isAuth) {
       router.push('/');

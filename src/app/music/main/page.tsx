@@ -19,9 +19,9 @@ export default function Home() {
       })
       .catch((error) => {
         console.error('Error fetching tracks:', error);
-        // Можно добавить обработку ошибок, например, показать уведомление
+        
       });
-  }, []); // Добавлен пустой массив зависимостей
+  }, []); 
 
   return (
     <div className={styles.wrapper}>

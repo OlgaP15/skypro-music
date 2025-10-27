@@ -1,8 +1,6 @@
-// store/features/authSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { registerUser, loginUser, getTokens } from "@/app/services/auth/authApi";
 
-// ---- Типы данных ----
 export interface User {
   email: string;
   username: string;
@@ -37,7 +35,6 @@ const initialState: AuthState = {
   isAuth: false,
 };
 
-// ---- AsyncThunk для регистрации ----
 export const register = createAsyncThunk<
   User,
   { email: string; password: string; username: string },
@@ -47,8 +44,7 @@ export const register = createAsyncThunk<
   async ({ email, password, username }, { rejectWithValue }) => {
     try {
       const data = await registerUser(email, password, username);
-      
-      // Формат ответа: { "message": "...", "result": { user }, "success": true }
+
       if (data.result) {
         return data.result;
       }
@@ -60,23 +56,18 @@ export const register = createAsyncThunk<
   }
 );
 
-// ---- AsyncThunk для входа ----
 export const login = createAsyncThunk<
   AuthResponse,
   { email: string; password: string },
   { rejectValue: string }
 >("auth/login", async ({ email, password }, { rejectWithValue }) => {
   try {
-    // Сначала получаем данные пользователя
     const userResponse = await loginUser(email, password);
-    
-    // Формат ответа: { email, username, _id }
+
     const userData = userResponse;
 
-    // Затем получаем токены
     const tokensResponse = await getTokens(email, password);
-    
-    // Формат ответа: { access, refresh }
+
     const tokensData = tokensResponse;
 
     const payload: AuthResponse = {
@@ -84,7 +75,6 @@ export const login = createAsyncThunk<
       tokens: tokensData,
     };
 
-    // Сохраняем в localStorage
     localStorage.setItem("user", JSON.stringify(payload));
     return payload;
   } catch (error) {
@@ -126,7 +116,6 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // --- регистрация ---
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -140,7 +129,6 @@ const authSlice = createSlice({
         state.error = action.payload ?? "Ошибка регистрации";
       })
 
-      // --- вход ---
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;

@@ -1,4 +1,3 @@
-// app/auth/layout.tsx
 'use client';
 
 import { ReactNode, useEffect } from 'react';
@@ -20,7 +19,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     dispatch(restoreSession());
   }, [dispatch]);
 
-  // Редирект если пользователь уже авторизован
   useEffect(() => {
     if (isAuth) {
       router.push('/');
@@ -31,7 +29,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     <div className={styles.wrapper}>
       <div className={styles.containerEnter}>
         <div className={styles.modal__block}>
-          {/* УБИРАЕМ форму здесь - она будет в page.tsx */}
           <div className={styles.modal__form}>
             {children}
           </div>

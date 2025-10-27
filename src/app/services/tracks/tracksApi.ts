@@ -2,7 +2,6 @@ import axios from 'axios';
 import { BASE_URL, API_ENDPOINTS, DEFAULT_HEADERS } from '../constants';
 import { TrackTypes } from '@/SharedTypes/sharedTypes';
 
-// Строгая типизация для ответов API
 interface BaseApiResponse {
   message?: string;
   success?: boolean;

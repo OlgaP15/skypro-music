@@ -1,4 +1,3 @@
-// app/auth/signup/page.tsx
 'use client';
 
 import styles from './signup.module.css';
@@ -19,7 +18,6 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [repeat, setRepeat] = useState('');
 
-  // Очищаем ошибки при монтировании
   useEffect(() => {
     dispatch(clearError());
   }, [dispatch]);
@@ -27,7 +25,6 @@ export default function Signup() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Проверка полей
     if (!email.trim() || !username.trim() || !password.trim() || !repeat.trim()) {
       alert("Заполните все поля");
       return;
