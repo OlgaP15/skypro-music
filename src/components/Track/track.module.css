@@ -134,8 +134,29 @@
   height: 16px;
   border-radius: 50%;
   background: #b672ff;
-  animation: pulse 1.5s infinite;
   z-index: 2;
+}
+
+.pulseDot::before,
+.pulseDot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #b672ff;
+  animation: pulse 2s infinite linear;
+}
+
+.pulseDot::before {
+  animation-delay: 0s;
+}
+
+.pulseDot::after {
+  animation-delay: 1s;
 }
 
 .staticDot {
@@ -152,16 +173,14 @@
 
 @keyframes pulse {
   0% {
-    transform: translate(-50%, -50%) scale(0.8);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.1);
+    width: 16px;
+    height: 16px;
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -50%) scale(0.8);
-    opacity: 0.7;
+    width: 40px;
+    height: 40px;
+    opacity: 0;
   }
 }
 
