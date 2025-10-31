@@ -13,11 +13,9 @@ export default function Button({
   nameFilter,
   activeFilter,
   selectedCount = 0,
-  //totalCount = 0,
   onClick,
 }: ButtonProps) {
   const hasSelection = selectedCount > 0;
-  //const displayCount = hasSelection ? selectedCount : totalCount;
 
   return (
     <button
@@ -27,17 +25,6 @@ export default function Button({
       onClick={onClick}
     >
       {nameFilter}
-      {/*
-      {displayCount > 0 && (
-        <span
-          className={classNames(styles.count__badge, {
-            [styles.hasSelection]: hasSelection,
-          })}
-        >
-          {displayCount}
-        </span>
-      )}
-      */}
     </button>
   );
 }

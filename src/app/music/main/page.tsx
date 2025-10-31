@@ -1,39 +1,55 @@
 "use client";
 
 import { getTracks } from '@/app/services/tracks/tracksApi';
-import styles from './page.module.css';
-import Bar from '@/components/Bar/Bar';
 import Centerblock from '@/components/Centerblock/Centerblock';
-import Navigation from '@/components/Navigation/Navigation';
-import Sidebar from '@/components/Sidebar/Sidebar';
 import { useEffect, useState } from 'react';
 import { TrackTypes } from '@/SharedTypes/sharedTypes';
+import styles from '../musicLayout.module.css';
 
 export default function Home() {
   const [tracks, setTracks] = useState<TrackTypes[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getTracks()
-      .then((res) => {
-        setTracks(res);
-      })
-      .catch((error) => {
+    const fetchTracks = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const tracksData = await getTracks();
+        setTracks(tracksData);
+      } catch (error) {
         console.error('Error fetching tracks:', error);
-        
-      });
-  }, []); 
+        setError('Не удалось загрузить треки. Пожалуйста, попробуйте позже.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  return (
-    <div className={styles.wrapper}>
-      <div className={styles.container}>
-        <main className={styles.main}>
-          <Navigation />
-          <Centerblock />
-          <Sidebar />
-        </main>
-        <Bar />
-        <footer className="footer"></footer>
+    fetchTracks();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loading}>Загрузка треков...</div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <div className={styles.error}>{error}</div>
+        <button 
+          className={styles.retryButton}
+          onClick={() => window.location.reload()}
+        >
+          Попробовать снова
+        </button>
+      </div>
+    );
+  }
+
+  return <Centerblock tracks={tracks} />;
 }

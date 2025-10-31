@@ -37,7 +37,7 @@ export default function Sidebar() {
               <Image
                 className={styles.sidebar__img}
                 src="/img/playlist01.png"
-                alt="day's playlist"
+                alt="Плейлист дня"
                 width={250}
                 height={150}
               />
@@ -48,7 +48,7 @@ export default function Sidebar() {
               <Image
                 className={styles.sidebar__img}
                 src="/img/playlist02.png"
-                alt="day's playlist"
+                alt="100 танцевальных хитов"
                 width={250}
                 height={150}
               />
@@ -59,7 +59,7 @@ export default function Sidebar() {
               <Image
                 className={styles.sidebar__img}
                 src="/img/playlist03.png"
-                alt="day's playlist"
+                alt="Инди-заряд"
                 width={250}
                 height={150}
               />

@@ -14,12 +14,18 @@ type trackTypeProp = {
 
 export default function Track({ track, index }: trackTypeProp) {
   const dispatch = useAppDispatch();
-  const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
-  const isPlay = useAppSelector((state) => state.tracks.isPlay);
+  const { currentTrack, isPlay } = useAppSelector((state) => state.tracks);
 
-  const isCurrent = currentTrack && currentTrack._id === track._id;
+  if (!track) {
+    return null;
+  }
+
+  const isCurrent = currentTrack && track && currentTrack._id === track._id;
 
   const handleTrackClick = () => {
+    if (!track || !track.track_file) {
+      return;
+    }
     dispatch(setCurrentTrack(track)); 
     dispatch(setCurrentIndex(index));
     dispatch(setIsPlay(true));   
@@ -39,18 +45,18 @@ export default function Track({ track, index }: trackTypeProp) {
           </div>
           <div className={styles.track__titleText}>
             <Link className={styles.track__titleLink} href="">
-              {track.name}
+              {track.name || 'Unknown Track'}
             </Link>
           </div>
         </div>
         <div className={styles.track__author}>
           <Link className={styles.track__authorLink} href="">
-            {track.author}
+            {track.author || 'Unknown Artist'}
           </Link>
         </div>
         <div className={styles.track__album}>
           <Link className={styles.track__albumLink} href="">
-            {track.album}
+            {track.album || 'Unknown Album'}
           </Link>
         </div>
         <div className={styles.track__time}>
@@ -58,7 +64,7 @@ export default function Track({ track, index }: trackTypeProp) {
             <use xlinkHref="/img/icon/sprite.svg#icon-like"></use>
           </svg>
           <span className={styles.track__timeText}>
-            {formatTime(track.duration_in_seconds)}
+            {formatTime(track.duration_in_seconds || 0)}
           </span>
         </div>
       </div>

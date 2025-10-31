@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import styles from './filter.module.css';
 import Button from '../UI/Button/Button';
 import FilterItem from '../FilterItem/FilterItem';
 import { data } from '@/data';
 import { getUniqueValueBeKey } from '@/utils/helper';
+import { useAppDispatch } from '@/store/store';
+import { setCurrentPlaylist } from '@/store/features/trackSlice';
 
 export default function Filter() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -13,12 +15,49 @@ export default function Filter() {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedYearSort, setSelectedYearSort] = useState<string>('');
   const popupRef = useRef<HTMLDivElement | null>(null);
+  
+  const dispatch = useAppDispatch();
+
+  const genres = Array.from(
+    new Set(data.flatMap(track => track.genre))
+  );
 
   const authors = getUniqueValueBeKey(data, 'author');
-  const genres = getUniqueValueBeKey(data, 'genre');
   const years = Array.from(
     new Set(data.map((track) => track.release_date.slice(0, 4))),
   );
+
+  const applyFilters = useCallback(() => {
+    let filtered = [...data];
+    
+    if (selectedAuthors.length > 0) {
+      filtered = filtered.filter(track => 
+        selectedAuthors.includes(track.author)
+      );
+    }
+  
+    if (selectedGenres.length > 0) {
+      filtered = filtered.filter(track => 
+        track.genre.some(genre => selectedGenres.includes(genre))
+      );
+    }
+
+    if (selectedYearSort === 'Сначала новые') {
+      filtered = [...filtered].sort((a, b) => 
+        new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+      );
+    } else if (selectedYearSort === 'Сначала старые') {
+      filtered = [...filtered].sort((a, b) => 
+        new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
+      );
+    }
+    
+    dispatch(setCurrentPlaylist(filtered));
+  }, [selectedAuthors, selectedGenres, selectedYearSort, dispatch]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const toggleFilter = (name: string) => {
     setActiveFilter((prev) => (prev === name ? null : name));
@@ -98,6 +137,13 @@ export default function Filter() {
     }
   };
 
+  const resetAllFilters = () => {
+    setSelectedAuthors([]);
+    setSelectedGenres([]);
+    setSelectedYearSort('');
+    setActiveFilter(null);
+  };
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
@@ -173,6 +219,16 @@ export default function Filter() {
             />
           )}
         </div>
+
+        {(selectedAuthors.length > 0 || selectedGenres.length > 0 || selectedYearSort) && (
+          <button 
+            className={styles.resetButton}
+            onClick={resetAllFilters}
+            title="Сбросить все фильтры"
+          >
+            Сбросить
+          </button>
+        )}
       </div>
     </div>
   );

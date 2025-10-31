@@ -4,7 +4,7 @@ import { registerUser, loginUser, getTokens } from "@/app/services/auth/authApi"
 export interface User {
   email: string;
   username: string;
-  _id: number;
+  _id: string; 
 }
 
 export interface TokenResponse {
@@ -36,19 +36,28 @@ const initialState: AuthState = {
 };
 
 export const register = createAsyncThunk<
-  User,
+  AuthResponse, 
   { email: string; password: string; username: string },
   { rejectValue: string }
 >(
   "auth/register",
   async ({ email, password, username }, { rejectWithValue }) => {
     try {
-      const data = await registerUser(email, password, username);
+      const registerData = await registerUser(email, password, username);
+      const userData = registerData.result || registerData;
 
-      if (data.result) {
-        return data.result;
-      }
-      return data;
+      const tokensData = await getTokens(email, password);
+
+      const payload: AuthResponse = {
+        user: userData,
+        tokens: tokensData,
+      };
+
+      localStorage.setItem("user", JSON.stringify(payload));
+      localStorage.setItem("access_token", tokensData.access);
+      localStorage.setItem("refresh_token", tokensData.refresh);
+      
+      return payload;
     } catch (error) {
       const err = error as Error;
       return rejectWithValue(err.message || "Ошибка регистрации");
@@ -63,11 +72,9 @@ export const login = createAsyncThunk<
 >("auth/login", async ({ email, password }, { rejectWithValue }) => {
   try {
     const userResponse = await loginUser(email, password);
-
     const userData = userResponse;
 
     const tokensResponse = await getTokens(email, password);
-
     const tokensData = tokensResponse;
 
     const payload: AuthResponse = {
@@ -76,6 +83,9 @@ export const login = createAsyncThunk<
     };
 
     localStorage.setItem("user", JSON.stringify(payload));
+    localStorage.setItem("access_token", tokensData.access);
+    localStorage.setItem("refresh_token", tokensData.refresh);
+    
     return payload;
   } catch (error) {
     const err = error as Error;
@@ -89,6 +99,8 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem("user");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       state.user = null;
       state.access = null;
       state.refresh = null;
@@ -107,11 +119,17 @@ const authSlice = createSlice({
         } catch (error) {
           console.error('Error restoring session:', error);
           localStorage.removeItem("user");
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
         }
       }
     },
     clearError: (state) => {
       state.error = null;
+    },
+    setTokens: (state, action: PayloadAction<TokenResponse>) => {
+      state.access = action.payload.access;
+      state.refresh = action.payload.refresh;
     }
   },
   extraReducers: (builder) => {
@@ -120,15 +138,19 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(register.fulfilled, (state) => {
+      .addCase(register.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
         state.loading = false;
+        state.user = action.payload.user;
+        state.access = action.payload.tokens.access;
+        state.refresh = action.payload.tokens.refresh;
+        state.isAuth = true;
         state.error = null;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Ошибка регистрации";
+        state.isAuth = false;
       })
-
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -149,5 +171,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, restoreSession, clearError } = authSlice.actions;
+export const { logout, restoreSession, clearError, setTokens } = authSlice.actions;
 export const authSliceReducer = authSlice.reducer;
