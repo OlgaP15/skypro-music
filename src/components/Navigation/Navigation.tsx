@@ -15,13 +15,15 @@ export default function Navigation() {
   return(
     <nav className={styles.main__nav}>
             <div className={styles.nav__logo}>
-              <Image
-                width={250}
-                height={170}
-                className={styles.logo__image}
-                src="/img/logo.png"
-                alt={'logo'}
-              />
+              <Link href="/">
+                <Image
+                  width={250}
+                  height={170}
+                  className={styles.logo__image}
+                  src="/img/logo.png"
+                  alt="logo"
+                />
+              </Link>
             </div>
             <div className={styles.nav__burger} onClick={hideBurger}>
               <span className={styles.burger__line}></span>

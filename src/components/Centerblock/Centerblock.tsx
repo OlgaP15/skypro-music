@@ -8,19 +8,40 @@ import Filter from '../Filter/Filter';
 import Track from '../Track/Track';
 import { useAppDispatch } from '@/store/store';
 import { setCurrentPlaylist } from '@/store/features/trackSlice';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import { TrackTypes } from '@/SharedTypes/sharedTypes';
 
-export default function Centerblock() {
+interface CenterblockProps {
+  tracks?: TrackTypes[];
+  title?: string;
+}
+
+export default function Centerblock({ tracks = data, title = "Треки" }: CenterblockProps) {
   const dispatch = useAppDispatch();
 
+  const validTracks = useMemo(() => {
+    return (tracks || data).filter(track => 
+      track && track._id && typeof track._id === 'string'
+    );
+  }, [tracks]); 
+
+  const tracksLength = useMemo(() => tracks?.length || 0, [tracks]);
+
   useEffect(() => {
-    dispatch(setCurrentPlaylist(data));
-  }, [dispatch]);
+    
+    if (validTracks.length > 0) {
+      dispatch(setCurrentPlaylist(validTracks));
+    } else {
+      dispatch(setCurrentPlaylist(data));
+    }
+  }, [dispatch, validTracks, tracksLength]);
+
+  const displayTracks = validTracks.length > 0 ? validTracks : data;
 
   return (
     <div className={styles.centerblock}>
       <Search />
-      <h2 className={styles.centerblock__h2}>Треки</h2>
+      <h2 className={styles.centerblock__h2}>{title}</h2>
       <Filter />
       <div className={styles.centerblock__content}>
         <div className={styles.content__title}>
@@ -40,9 +61,19 @@ export default function Centerblock() {
           </div>
         </div>
         <div className={styles.content__playlist}>
-          {data.map((track, index) => (
-            <Track track={track} key={track._id} index={index} />
-          ))}
+          {displayTracks.length > 0 ? (
+            displayTracks.map((track, index) => (
+              <Track 
+                track={track} 
+                key={track._id || `track-${index}`} 
+                index={index} 
+              />
+            ))
+          ) : (
+            <div className={styles.emptyState}>
+              Треки не найдены. Попробуйте обновить страницу.
+            </div>
+          )}
         </div>
       </div>
     </div>

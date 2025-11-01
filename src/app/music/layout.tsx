@@ -1,21 +1,26 @@
-import './page.css';
-import styles from './page.module.css'
+'use client';
+
+import { ReactNode } from 'react';
+import styles from './musicLayout.module.css';
 import Bar from '@/components/Bar/Bar';
-import Centerblock from '@/components/Centerblock/Centerblock';
 import Navigation from '@/components/Navigation/Navigation';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
-export default function Home() {
+interface MusicLayoutProps {
+  children: ReactNode;
+}
+
+export default function MusicLayout({ children }: MusicLayoutProps) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
         <main className={styles.main}>
           <Navigation />
-          <Centerblock />
+          {children}
           <Sidebar />
         </main>
         <Bar />
-        <footer className="footer"></footer>
+        <footer className={styles.footer}></footer>
       </div>
     </div>
   );
