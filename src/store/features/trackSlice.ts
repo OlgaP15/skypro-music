@@ -2,7 +2,6 @@ import { TrackTypes } from '@/SharedTypes/sharedTypes';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { data } from '@/data';
 
-
 type initialStateType = {
   currentTrack: TrackTypes | null;
   isPlay: boolean;
@@ -10,7 +9,12 @@ type initialStateType = {
   shuffle: boolean; 
   repeat: boolean; 
   shuffledPlaylist: TrackTypes[]; 
-  currentIndex: number; 
+  currentIndex: number;
+  allTracks: TrackTypes[];
+  fetchError: null | string;
+  fetchIsLoading: boolean; 
+  favoriteTracks: TrackTypes[];
+  favoriteTracksIds: string[];
 };
 
 const initialState: initialStateType = {
@@ -21,6 +25,11 @@ const initialState: initialStateType = {
   repeat: false,
   shuffledPlaylist: [],
   currentIndex: -1,
+  allTracks: [],
+  fetchError: null,
+  fetchIsLoading: true,
+  favoriteTracks: [],
+  favoriteTracksIds: [],
 };
 
 const trackSlice = createSlice({
@@ -91,8 +100,73 @@ const trackSlice = createSlice({
       }
       state.currentIndex = prevIndex;
     },
-  }  
-});
+    setAllTracks: (state, action: PayloadAction<TrackTypes[]>) => {
+      state.allTracks = action.payload;
+    },
+    setFetchError: (state, action: PayloadAction<string>) => {
+      state.fetchError = action.payload;
+    },
+    setFetchIsLoading: (state, action: PayloadAction<boolean>) => {
+      state.fetchIsLoading = action.payload;  
+    },
+    addToFavorites: (state, action: PayloadAction<TrackTypes>) => {
+      const track = action.payload;
+      if (!state.favoriteTracks.find(fav => fav._id.toString() === track._id.toString())) {
+        state.favoriteTracks.push(track);
+        state.favoriteTracksIds.push(track._id.toString());
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('favoriteTracks', JSON.stringify(state.favoriteTracks));
+          localStorage.setItem('favoriteTracksIds', JSON.stringify(state.favoriteTracksIds));
+        }
+      }
+    },
+    removeFromFavorites: (state, action: PayloadAction<string | number>) => {
+      const trackId = action.payload;
+      state.favoriteTracks = state.favoriteTracks.filter(track => track._id.toString() !== trackId.toString());
+      state.favoriteTracksIds = state.favoriteTracksIds.filter(id => id !== trackId.toString());
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('favoriteTracks', JSON.stringify(state.favoriteTracks));
+        localStorage.setItem('favoriteTracksIds', JSON.stringify(state.favoriteTracksIds));
+      }
+    },
+    loadFavoriteTracks: (state) => {
+      if (typeof window !== 'undefined') {
+        try {
+          const savedFavorites = localStorage.getItem('favoriteTracks');
+          const savedIds = localStorage.getItem('favoriteTracksIds');
+          
+          if (savedFavorites) {
+            state.favoriteTracks = JSON.parse(savedFavorites);
+          }
+          if (savedIds) {
+            state.favoriteTracksIds = JSON.parse(savedIds);
+          }
+        } catch (error) {
+          console.error('Error loading favorite tracks from localStorage:', error);
+        }
+      }
+    },
+
+    toggleFavorite: (state, action: PayloadAction<TrackTypes>) => {
+      const track = action.payload;
+      const isFavorite = state.favoriteTracksIds.includes(track._id.toString());
+      
+      if (isFavorite) {
+        state.favoriteTracks = state.favoriteTracks.filter(fav => fav._id.toString() !== track._id.toString());
+        state.favoriteTracksIds = state.favoriteTracksIds.filter(id => id !== track._id.toString());
+      } else {
+        state.favoriteTracks.push(track);
+        state.favoriteTracksIds.push(track._id.toString());
+      }
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('favoriteTracks', JSON.stringify(state.favoriteTracks));
+        localStorage.setItem('favoriteTracksIds', JSON.stringify(state.favoriteTracksIds));
+      }
+    },
+  },
+})  
 
 export const { 
   setCurrentTrack, 
@@ -102,6 +176,13 @@ export const {
   setRepeat, 
   setCurrentIndex,
   nextTrack,
-  prevTrack
+  prevTrack,
+  setAllTracks,
+  setFetchError,
+  setFetchIsLoading,
+  addToFavorites,
+  removeFromFavorites,
+  loadFavoriteTracks,
+  toggleFavorite
 } = trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;

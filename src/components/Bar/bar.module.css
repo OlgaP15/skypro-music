@@ -345,8 +345,8 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  background: #cfc6c6;
-  border: 2px solid white;
+  background: #e09ae9;
+  border: 2px solid rgb(221, 50, 236);
   border-radius: 50%;
   position: relative;
   margin-top: -7px;
@@ -417,4 +417,19 @@
 
 .bar__playerProgress:hover .bar__progressFill {
   background: #ad61ff;
+}
+
+.trackPlay__like.active .trackPlay__likeSvg {
+  fill: #b672ff !important;
+  stroke: #b672ff !important;
+}
+
+.trackPlay__like:active .trackPlay__likeSvg {
+  transform: scale(0.9);
+  transition: transform 0.1s;
+}
+
+.trackPlay__like:hover .trackPlay__likeSvg {
+  stroke: #acacac;
+  cursor: pointer;
 }
