@@ -5,7 +5,14 @@ import { TrackTypes } from '@/SharedTypes/sharedTypes';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { formatTime } from '@/utils/helper';
 import Link from 'next/link';
-import { setCurrentTrack, setIsPlay, setCurrentIndex } from '@/store/features/trackSlice';
+import { 
+  setCurrentTrack, 
+  setIsPlay, 
+  setCurrentIndex, 
+  toggleFavorite,
+  loadFavoriteTracks 
+} from '@/store/features/trackSlice';
+import { useEffect } from 'react';
 
 type trackTypeProp = {
   track: TrackTypes;
@@ -14,13 +21,18 @@ type trackTypeProp = {
 
 export default function Track({ track, index }: trackTypeProp) {
   const dispatch = useAppDispatch();
-  const { currentTrack, isPlay } = useAppSelector((state) => state.tracks);
+  const { currentTrack, isPlay, favoriteTracksIds } = useAppSelector((state) => state.tracks);
+
+  useEffect(() => {
+    dispatch(loadFavoriteTracks());
+  }, [dispatch]);
 
   if (!track) {
     return null;
   }
 
   const isCurrent = currentTrack && track && currentTrack._id === track._id;
+  const isFavorite = favoriteTracksIds.includes(track._id.toString());
 
   const handleTrackClick = () => {
     if (!track || !track.track_file) {
@@ -29,6 +41,11 @@ export default function Track({ track, index }: trackTypeProp) {
     dispatch(setCurrentTrack(track)); 
     dispatch(setCurrentIndex(index));
     dispatch(setIsPlay(true));   
+  };
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    dispatch(toggleFavorite(track));
   };
 
   return (
@@ -60,7 +77,10 @@ export default function Track({ track, index }: trackTypeProp) {
           </Link>
         </div>
         <div className={styles.track__time}>
-          <svg className={styles.track__timeSvg}>
+          <svg 
+            className={`${styles.track__timeSvg} ${isFavorite ? styles.track__timeSvgActive : ''}`}
+            onClick={handleFavoriteClick}
+          >
             <use xlinkHref="/img/icon/sprite.svg#icon-like"></use>
           </svg>
           <span className={styles.track__timeText}>

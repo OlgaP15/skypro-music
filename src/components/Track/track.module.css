@@ -114,6 +114,23 @@
   margin-right: 17px;
   fill: transparent;
   stroke: #696969;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.track__timeSvg:hover {
+  stroke: #acacac;
+  transform: scale(1.1);
+}
+
+.track__timeSvgActive {
+  fill: #B672FF !important;
+  stroke: #B672FF !important;
+}
+
+.track__timeSvgActive:hover {
+  fill: #9A55EA !important;
+  stroke: #9A55EA !important;
 }
 
 .track__timeText {
@@ -176,6 +193,9 @@
     width: 16px;
     height: 16px;
     opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
   }
   100% {
     width: 40px;

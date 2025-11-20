@@ -82,7 +82,7 @@ export const getTracks = async (): Promise<TrackTypes[]> => {
     const validTracks = tracks
       .filter(track => track && typeof track === 'object')
       .map(track => ({
-        _id: Number(track._id) || Math.floor(Math.random() * 1000000), // преобразуем в number
+        _id: Number(track._id) || Math.floor(Math.random() * 1000000), 
         name: track.name || 'Unknown Track',
         author: track.author || 'Unknown Artist',
         release_date: track.release_date || '2023-01-01',
