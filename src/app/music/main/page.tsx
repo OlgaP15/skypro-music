@@ -1,35 +1,13 @@
 "use client";
 
-import { getTracks } from '@/app/services/tracks/tracksApi';
 import Centerblock from '@/components/Centerblock/Centerblock';
-import { useEffect, useState } from 'react';
-import { TrackTypes } from '@/SharedTypes/sharedTypes';
+import { useAppSelector } from '@/store/store';
 import styles from '../musicLayout.module.css';
 
 export default function Home() {
-  const [tracks, setTracks] = useState<TrackTypes[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { allTracks, fetchIsLoading, fetchError } = useAppSelector((state) => state.tracks);
 
-  useEffect(() => {
-    const fetchTracks = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const tracksData = await getTracks();
-        setTracks(tracksData);
-      } catch (error) {
-        console.error('Error fetching tracks:', error);
-        setError('Не удалось загрузить треки. Пожалуйста, попробуйте позже.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTracks();
-  }, []);
-
-  if (loading) {
+  if (fetchIsLoading) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loading}>Загрузка треков...</div>
@@ -37,10 +15,10 @@ export default function Home() {
     );
   }
 
-  if (error) {
+  if (fetchError) {
     return (
       <div className={styles.errorContainer}>
-        <div className={styles.error}>{error}</div>
+        <div className={styles.error}>{fetchError}</div>
         <button 
           className={styles.retryButton}
           onClick={() => window.location.reload()}
@@ -51,5 +29,5 @@ export default function Home() {
     );
   }
 
-  return <Centerblock tracks={tracks} />;
+  return <Centerblock tracks={allTracks} title="Треки" />;
 }

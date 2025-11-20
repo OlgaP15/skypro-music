@@ -21,20 +21,15 @@ export default function Centerblock({ tracks = data, title = "Треки" }: Cen
 
   const validTracks = useMemo(() => {
     return (tracks || data).filter(track => 
-      track && track._id && typeof track._id === 'string'
+      track && track._id
     );
   }, [tracks]); 
 
-  const tracksLength = useMemo(() => tracks?.length || 0, [tracks]);
-
   useEffect(() => {
-    
-    if (validTracks.length > 0) {
+    if (title === "Треки" && validTracks.length > 0) {
       dispatch(setCurrentPlaylist(validTracks));
-    } else {
-      dispatch(setCurrentPlaylist(data));
     }
-  }, [dispatch, validTracks, tracksLength]);
+  }, [dispatch, validTracks, title]);
 
   const displayTracks = validTracks.length > 0 ? validTracks : data;
 
