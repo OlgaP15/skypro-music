@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'; // ОБНОВЛЕНО: добавлен useMemo
 import styles from './filter.module.css';
 import Button from '../UI/Button/Button';
 import FilterItem from '../FilterItem/FilterItem';
 import { data } from '@/data';
 import { getUniqueValueBeKey } from '@/utils/helper';
-import { useAppDispatch } from '@/store/store';
+import { useAppDispatch, useAppSelector } from '@/store/store';
 import { setCurrentPlaylist } from '@/store/features/trackSlice';
+import { usePathname } from 'next/navigation';
 
 export default function Filter() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -17,18 +18,35 @@ export default function Filter() {
   const popupRef = useRef<HTMLDivElement | null>(null);
   
   const dispatch = useAppDispatch();
+  const { allTracks, favoriteTracks } = useAppSelector((state) => state.tracks);
+  const pathname = usePathname();
 
-  const genres = Array.from(
-    new Set(data.flatMap(track => track.genre))
+  const isFavoritePage = pathname.includes('/favorites');
+
+  // ОБНОВЛЕНО: обернул в useMemo для стабильности зависимостей
+  const availableTracks = useMemo(() => {
+    return isFavoritePage 
+      ? favoriteTracks.length > 0 ? favoriteTracks : []
+      : allTracks.length > 0 ? allTracks : data;
+  }, [isFavoritePage, favoriteTracks, allTracks]); // ДОБАВЛЕНО: зависимости useMemo
+
+  const genres = useMemo(() => 
+    Array.from(new Set(availableTracks.flatMap(track => track.genre))),
+    [availableTracks]
   );
 
-  const authors = getUniqueValueBeKey(data, 'author');
-  const years = Array.from(
-    new Set(data.map((track) => track.release_date.slice(0, 4))),
+  const authors = useMemo(() => 
+    getUniqueValueBeKey(availableTracks, 'author'),
+    [availableTracks]
+  );
+
+  const years = useMemo(() => 
+    Array.from(new Set(availableTracks.map((track) => track.release_date.slice(0, 4)))),
+    [availableTracks]
   );
 
   const applyFilters = useCallback(() => {
-    let filtered = [...data];
+    let filtered = [...availableTracks];
     
     if (selectedAuthors.length > 0) {
       filtered = filtered.filter(track => 
@@ -53,11 +71,19 @@ export default function Filter() {
     }
     
     dispatch(setCurrentPlaylist(filtered));
-  }, [selectedAuthors, selectedGenres, selectedYearSort, dispatch]);
+  }, [selectedAuthors, selectedGenres, selectedYearSort, dispatch, availableTracks]);
 
   useEffect(() => {
     applyFilters();
   }, [applyFilters]);
+
+  // ДОБАВЛЕНО: сбрасываем фильтры при смене страницы
+  useEffect(() => {
+    setSelectedAuthors([]);
+    setSelectedGenres([]);
+    setSelectedYearSort('');
+    setActiveFilter(null);
+  }, [pathname]);
 
   const toggleFilter = (name: string) => {
     setActiveFilter((prev) => (prev === name ? null : name));
