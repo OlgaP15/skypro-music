@@ -44,6 +44,12 @@ const trackSlice = createSlice({
     },
     setCurrentPlaylist: (state, action: PayloadAction<TrackTypes[]>) => {
       state.currentPlaylist = action.payload;
+      
+      // ОБНОВЛЕНО: обновляем shuffledPlaylist если shuffle активен
+      if (state.shuffle && action.payload.length > 0) {
+        const shuffled = [...action.payload].sort(() => Math.random() - 0.5);
+        state.shuffledPlaylist = shuffled;
+      }
     },
     setShuffle: (state, action: PayloadAction<boolean>) => {
       state.shuffle = action.payload;
@@ -102,6 +108,8 @@ const trackSlice = createSlice({
     },
     setAllTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.allTracks = action.payload;
+      // ОБНОВЛЕНО: устанавливаем currentPlaylist при загрузке всех треков
+      state.currentPlaylist = action.payload;
     },
     setFetchError: (state, action: PayloadAction<string>) => {
       state.fetchError = action.payload;

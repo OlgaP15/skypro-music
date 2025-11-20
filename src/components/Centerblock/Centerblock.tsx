@@ -6,7 +6,7 @@ import Search from '../Search/Search';
 import { data } from '@/data';
 import Filter from '../Filter/Filter';
 import Track from '../Track/Track';
-import { useAppDispatch } from '@/store/store';
+import { useAppDispatch, useAppSelector } from '@/store/store';
 import { setCurrentPlaylist } from '@/store/features/trackSlice';
 import { useEffect, useMemo } from 'react';
 import { TrackTypes } from '@/SharedTypes/sharedTypes';
@@ -14,10 +14,12 @@ import { TrackTypes } from '@/SharedTypes/sharedTypes';
 interface CenterblockProps {
   tracks?: TrackTypes[];
   title?: string;
+  isFavoritePage?: boolean; // ДОБАВЛЕНО: флаг для страницы избранного
 }
 
-export default function Centerblock({ tracks = data, title = "Треки" }: CenterblockProps) {
+export default function Centerblock({ tracks = data, title = "Треки", isFavoritePage = false }: CenterblockProps) {
   const dispatch = useAppDispatch();
+  const { currentPlaylist, favoriteTracks } = useAppSelector((state) => state.tracks); // ДОБАВЛЕНО: favoriteTracks
 
   const validTracks = useMemo(() => {
     return (tracks || data).filter(track => 
@@ -26,12 +28,15 @@ export default function Centerblock({ tracks = data, title = "Треки" }: Cen
   }, [tracks]); 
 
   useEffect(() => {
-    if (title === "Треки" && validTracks.length > 0) {
+    if (title === "Треки" && validTracks.length > 0 && !isFavoritePage) {
       dispatch(setCurrentPlaylist(validTracks));
     }
-  }, [dispatch, validTracks, title]);
+  }, [dispatch, validTracks, title, isFavoritePage]); // ДОБАВЛЕНО: isFavoritePage в зависимости
 
-  const displayTracks = validTracks.length > 0 ? validTracks : data;
+  // ОБНОВЛЕНО: для страницы избранного используем favoriteTracks, для остальных - currentPlaylist
+  const displayTracks = isFavoritePage 
+    ? favoriteTracks 
+    : (currentPlaylist.length > 0 ? currentPlaylist : validTracks);
 
   return (
     <div className={styles.centerblock}>
