@@ -31,6 +31,5 @@ export default function FavoritesPage() {
     );
   }
 
-  // ОБНОВЛЕНО: передаем isFavoritePage prop
   return <Centerblock tracks={favoriteTracks} title="Мои треки" isFavoritePage={true} />;
 }

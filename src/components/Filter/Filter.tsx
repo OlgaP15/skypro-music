@@ -44,7 +44,6 @@ export default function Filter() {
     [availableTracks]
   );
 
-  // ИЗМЕНЕНО: обновленная логика применения фильтров
   const applyFilters = useCallback(() => {
     let filtered = [...availableTracks];
     
@@ -69,8 +68,7 @@ export default function Filter() {
         new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
       );
     }
-    
-    // ИЗМЕНЕНО: разная логика для разных страниц
+
     if (isFavoritePage) {
       dispatch(setFilteredFavoriteTracks(filtered));
     } else {
@@ -82,14 +80,12 @@ export default function Filter() {
     applyFilters();
   }, [applyFilters]);
 
-  // ИЗМЕНЕНО: обновленный сброс при смене страницы
   useEffect(() => {
     setSelectedAuthors([]);
     setSelectedGenres([]);
     setSelectedYearSort('');
     setActiveFilter(null);
-    
-    // ДОБАВЛЕНО: сброс filteredFavoriteTracks при смене страницы
+
     if (isFavoritePage) {
       dispatch(setFilteredFavoriteTracks([]));
     }
@@ -173,14 +169,12 @@ export default function Filter() {
     }
   };
 
-  // ИЗМЕНЕНО: обновленная функция сброса фильтров
   const resetAllFilters = () => {
     setSelectedAuthors([]);
     setSelectedGenres([]);
     setSelectedYearSort('');
     setActiveFilter(null);
-    
-    // ДОБАВЛЕНО: сброс для страницы избранного
+
     if (isFavoritePage) {
       dispatch(setFilteredFavoriteTracks([]));
     }

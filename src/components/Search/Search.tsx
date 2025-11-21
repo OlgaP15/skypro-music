@@ -19,10 +19,8 @@ export default function Search() {
     setSearchInput(e.target.value);
   };
 
-  // ИЗМЕНЕНО: обновленная логика поиска с учетом страницы
   useEffect(() => {
     if (!searchInput.trim()) {
-      // Если поисковая строка пустая, показываем все доступные треки для текущей страницы
       if (isFavoritePage) {
         dispatch(setFilteredFavoriteTracks(availableTracks));
       } else {
@@ -32,14 +30,12 @@ export default function Search() {
     }
 
     const searchTerm = searchInput.toLowerCase().trim();
-    
-    // Фильтруем треки по названию и исполнителю
+
     const filteredTracks = availableTracks.filter(track => 
       track.name.toLowerCase().includes(searchTerm) ||
       track.author.toLowerCase().includes(searchTerm)
     );
 
-    // ИЗМЕНЕНО: разная логика для разных страниц
     if (isFavoritePage) {
       dispatch(setFilteredFavoriteTracks(filteredTracks));
     } else {
@@ -47,7 +43,6 @@ export default function Search() {
     }
   }, [searchInput, availableTracks, dispatch, isFavoritePage]);
 
-  // ДОБАВЛЕНО: сбрасываем поиск при смене страницы
   useEffect(() => {
     setSearchInput('');
   }, [pathname]);
