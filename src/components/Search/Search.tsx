@@ -3,28 +3,31 @@
 import { ChangeEvent, useState, useEffect } from 'react';
 import styles from './search.module.css';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import { setCurrentPlaylist } from '@/store/features/trackSlice';
-import { usePathname } from 'next/navigation'; // ДОБАВЛЕНО: для определения текущей страницы
+import { setCurrentPlaylist, setFilteredFavoriteTracks } from '@/store/features/trackSlice'; // ИЗМЕНЕНО: добавлен импорт
+import { usePathname } from 'next/navigation';
 
 export default function Search() {
   const [searchInput, setSearchInput] = useState('');
   const dispatch = useAppDispatch();
   const { allTracks, favoriteTracks } = useAppSelector((state) => state.tracks);
-  const pathname = usePathname(); // ДОБАВЛЕНО: получаем текущий путь
-  const isFavoritePage = pathname.includes('/favorites'); // ДОБАВЛЕНО: проверяем страницу избранного
+  const pathname = usePathname();
+  const isFavoritePage = pathname.includes('/favorites');
 
-  // ОБНОВЛЕНО: используем разные наборы треков для разных страниц
   const availableTracks = isFavoritePage ? favoriteTracks : allTracks;
 
   const onSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
   };
 
-  // ОБНОВЛЕНО: эффект для поиска с учетом страницы
+  // ИЗМЕНЕНО: обновленная логика поиска с учетом страницы
   useEffect(() => {
     if (!searchInput.trim()) {
       // Если поисковая строка пустая, показываем все доступные треки для текущей страницы
-      dispatch(setCurrentPlaylist(availableTracks));
+      if (isFavoritePage) {
+        dispatch(setFilteredFavoriteTracks(availableTracks));
+      } else {
+        dispatch(setCurrentPlaylist(availableTracks));
+      }
       return;
     }
 
@@ -36,8 +39,13 @@ export default function Search() {
       track.author.toLowerCase().includes(searchTerm)
     );
 
-    dispatch(setCurrentPlaylist(filteredTracks));
-  }, [searchInput, availableTracks, dispatch]);
+    // ИЗМЕНЕНО: разная логика для разных страниц
+    if (isFavoritePage) {
+      dispatch(setFilteredFavoriteTracks(filteredTracks));
+    } else {
+      dispatch(setCurrentPlaylist(filteredTracks));
+    }
+  }, [searchInput, availableTracks, dispatch, isFavoritePage]);
 
   // ДОБАВЛЕНО: сбрасываем поиск при смене страницы
   useEffect(() => {

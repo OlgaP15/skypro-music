@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react'; // ОБНОВЛЕНО: добавлен useMemo
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import styles from './filter.module.css';
 import Button from '../UI/Button/Button';
 import FilterItem from '../FilterItem/FilterItem';
 import { data } from '@/data';
 import { getUniqueValueBeKey } from '@/utils/helper';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import { setCurrentPlaylist } from '@/store/features/trackSlice';
+import { setCurrentPlaylist, setFilteredFavoriteTracks } from '@/store/features/trackSlice'; // ИЗМЕНЕНО: добавлен импорт
 import { usePathname } from 'next/navigation';
 
 export default function Filter() {
@@ -23,12 +23,11 @@ export default function Filter() {
 
   const isFavoritePage = pathname.includes('/favorites');
 
-  // ОБНОВЛЕНО: обернул в useMemo для стабильности зависимостей
   const availableTracks = useMemo(() => {
     return isFavoritePage 
       ? favoriteTracks.length > 0 ? favoriteTracks : []
       : allTracks.length > 0 ? allTracks : data;
-  }, [isFavoritePage, favoriteTracks, allTracks]); // ДОБАВЛЕНО: зависимости useMemo
+  }, [isFavoritePage, favoriteTracks, allTracks]);
 
   const genres = useMemo(() => 
     Array.from(new Set(availableTracks.flatMap(track => track.genre))),
@@ -45,6 +44,7 @@ export default function Filter() {
     [availableTracks]
   );
 
+  // ИЗМЕНЕНО: обновленная логика применения фильтров
   const applyFilters = useCallback(() => {
     let filtered = [...availableTracks];
     
@@ -70,20 +70,30 @@ export default function Filter() {
       );
     }
     
-    dispatch(setCurrentPlaylist(filtered));
-  }, [selectedAuthors, selectedGenres, selectedYearSort, dispatch, availableTracks]);
+    // ИЗМЕНЕНО: разная логика для разных страниц
+    if (isFavoritePage) {
+      dispatch(setFilteredFavoriteTracks(filtered));
+    } else {
+      dispatch(setCurrentPlaylist(filtered));
+    }
+  }, [selectedAuthors, selectedGenres, selectedYearSort, dispatch, availableTracks, isFavoritePage]);
 
   useEffect(() => {
     applyFilters();
   }, [applyFilters]);
 
-  // ДОБАВЛЕНО: сбрасываем фильтры при смене страницы
+  // ИЗМЕНЕНО: обновленный сброс при смене страницы
   useEffect(() => {
     setSelectedAuthors([]);
     setSelectedGenres([]);
     setSelectedYearSort('');
     setActiveFilter(null);
-  }, [pathname]);
+    
+    // ДОБАВЛЕНО: сброс filteredFavoriteTracks при смене страницы
+    if (isFavoritePage) {
+      dispatch(setFilteredFavoriteTracks([]));
+    }
+  }, [pathname, dispatch, isFavoritePage]);
 
   const toggleFilter = (name: string) => {
     setActiveFilter((prev) => (prev === name ? null : name));
@@ -163,11 +173,17 @@ export default function Filter() {
     }
   };
 
+  // ИЗМЕНЕНО: обновленная функция сброса фильтров
   const resetAllFilters = () => {
     setSelectedAuthors([]);
     setSelectedGenres([]);
     setSelectedYearSort('');
     setActiveFilter(null);
+    
+    // ДОБАВЛЕНО: сброс для страницы избранного
+    if (isFavoritePage) {
+      dispatch(setFilteredFavoriteTracks([]));
+    }
   };
 
   useEffect(() => {
