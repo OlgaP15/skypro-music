@@ -15,6 +15,7 @@ type initialStateType = {
   fetchIsLoading: boolean; 
   favoriteTracks: TrackTypes[];
   favoriteTracksIds: string[];
+  filteredFavoriteTracks: TrackTypes[]; // ДОБАВЛЕНО: для фильтрации на странице избранного
 };
 
 const initialState: initialStateType = {
@@ -30,6 +31,7 @@ const initialState: initialStateType = {
   fetchIsLoading: true,
   favoriteTracks: [],
   favoriteTracksIds: [],
+  filteredFavoriteTracks: [], // ДОБАВЛЕНО: начальное значение
 };
 
 const trackSlice = createSlice({
@@ -173,6 +175,11 @@ const trackSlice = createSlice({
         localStorage.setItem('favoriteTracksIds', JSON.stringify(state.favoriteTracksIds));
       }
     },
+
+    // ДОБАВЛЕНО: новый редуктор для фильтрации избранных треков
+    setFilteredFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
+      state.filteredFavoriteTracks = action.payload;
+    },
   },
 })  
 
@@ -191,6 +198,7 @@ export const {
   addToFavorites,
   removeFromFavorites,
   loadFavoriteTracks,
-  toggleFavorite
+  toggleFavorite,
+  setFilteredFavoriteTracks // ДОБАВЛЕНО: экспорт нового действия
 } = trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;
