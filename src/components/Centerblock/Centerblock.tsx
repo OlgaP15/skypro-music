@@ -33,15 +33,12 @@ export default function Centerblock({ tracks = data, title = "Треки", isFav
     }
   }, [dispatch, validTracks, title, isFavoritePage]);
 
-  // ИСПРАВЛЕНО: добавлены безопасные проверки
   const displayTracks = useMemo(() => {
     if (isFavoritePage) {
-      // Для страницы избранного: используем filteredFavoriteTracks если они есть и не пустые, иначе favoriteTracks
       return (filteredFavoriteTracks && filteredFavoriteTracks.length > 0) 
         ? filteredFavoriteTracks 
         : (favoriteTracks || []);
     } else {
-      // Для обычных страниц: используем currentPlaylist если есть и не пустые, иначе validTracks
       return (currentPlaylist && currentPlaylist.length > 0) 
         ? currentPlaylist 
         : validTracks;

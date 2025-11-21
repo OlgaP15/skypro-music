@@ -15,7 +15,7 @@ type initialStateType = {
   fetchIsLoading: boolean; 
   favoriteTracks: TrackTypes[];
   favoriteTracksIds: string[];
-  filteredFavoriteTracks: TrackTypes[]; // ДОБАВЛЕНО: для фильтрации на странице избранного
+  filteredFavoriteTracks: TrackTypes[]; 
 };
 
 const initialState: initialStateType = {
@@ -31,7 +31,7 @@ const initialState: initialStateType = {
   fetchIsLoading: true,
   favoriteTracks: [],
   favoriteTracksIds: [],
-  filteredFavoriteTracks: [], // ДОБАВЛЕНО: начальное значение
+  filteredFavoriteTracks: [], 
 };
 
 const trackSlice = createSlice({
@@ -46,8 +46,7 @@ const trackSlice = createSlice({
     },
     setCurrentPlaylist: (state, action: PayloadAction<TrackTypes[]>) => {
       state.currentPlaylist = action.payload;
-      
-      // ОБНОВЛЕНО: обновляем shuffledPlaylist если shuffle активен
+
       if (state.shuffle && action.payload.length > 0) {
         const shuffled = [...action.payload].sort(() => Math.random() - 0.5);
         state.shuffledPlaylist = shuffled;
@@ -110,7 +109,6 @@ const trackSlice = createSlice({
     },
     setAllTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.allTracks = action.payload;
-      // ОБНОВЛЕНО: устанавливаем currentPlaylist при загрузке всех треков
       state.currentPlaylist = action.payload;
     },
     setFetchError: (state, action: PayloadAction<string>) => {
@@ -176,7 +174,6 @@ const trackSlice = createSlice({
       }
     },
 
-    // ДОБАВЛЕНО: новый редуктор для фильтрации избранных треков
     setFilteredFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.filteredFavoriteTracks = action.payload;
     },
@@ -199,6 +196,6 @@ export const {
   removeFromFavorites,
   loadFavoriteTracks,
   toggleFavorite,
-  setFilteredFavoriteTracks // ДОБАВЛЕНО: экспорт нового действия
+  setFilteredFavoriteTracks 
 } = trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;
