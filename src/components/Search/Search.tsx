@@ -3,7 +3,7 @@
 import { ChangeEvent, useState, useEffect } from 'react';
 import styles from './search.module.css';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import { setCurrentPlaylist, setFilteredFavoriteTracks } from '@/store/features/trackSlice'; // ИЗМЕНЕНО: добавлен импорт
+import { setCurrentPlaylist, setFilteredFavoriteTracks } from '@/store/features/trackSlice'; 
 import { usePathname } from 'next/navigation';
 
 export default function Search() {
