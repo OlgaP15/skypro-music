@@ -7,7 +7,7 @@ import FilterItem from '../FilterItem/FilterItem';
 import { data } from '@/data';
 import { getUniqueValueBeKey } from '@/utils/helper';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import { setCurrentPlaylist, setFilteredFavoriteTracks } from '@/store/features/trackSlice'; // ИЗМЕНЕНО: добавлен импорт
+import { setCurrentPlaylist, setFilteredFavoriteTracks } from '@/store/features/trackSlice'; 
 import { usePathname } from 'next/navigation';
 
 export default function Filter() {
