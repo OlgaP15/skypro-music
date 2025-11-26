@@ -1,6 +1,7 @@
 import { TrackTypes } from '@/SharedTypes/sharedTypes';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { data } from '@/data';
+import { addToFavorites, removeFromFavorites, getFavoriteTracks } from '@/app/services/tracks/tracksApi';
 
 type initialStateType = {
   currentTrack: TrackTypes | null;
@@ -16,6 +17,7 @@ type initialStateType = {
   favoriteTracks: TrackTypes[];
   favoriteTracksIds: string[];
   filteredFavoriteTracks: TrackTypes[]; 
+  favoriteLoading: boolean;
 };
 
 const initialState: initialStateType = {
@@ -32,7 +34,46 @@ const initialState: initialStateType = {
   favoriteTracks: [],
   favoriteTracksIds: [],
   filteredFavoriteTracks: [], 
+  favoriteLoading: false,
 };
+
+export const toggleFavoriteAPI = createAsyncThunk(
+  'tracks/toggleFavoriteAPI',
+  async ({ track, isCurrentlyFavorite }: { track: TrackTypes; isCurrentlyFavorite: boolean }, { dispatch, rejectWithValue }) => {
+    try {
+      if (isCurrentlyFavorite) {
+        await removeFromFavorites(track._id);
+        dispatch(removeFromFavoritesLocal(track._id));
+      } else {
+        await addToFavorites(track._id);
+        dispatch(addToFavoritesLocal(track));
+      }
+      return { success: true };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Ошибка при изменении избранного';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const loadFavoriteTracksAPI = createAsyncThunk(
+  'tracks/loadFavoriteTracksAPI',
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const favoriteTracks = await getFavoriteTracks();
+      dispatch(setFavoriteTracks(favoriteTracks));
+      return favoriteTracks;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки избранных треков';
+
+      if (errorMessage.includes('Сессия истекла') || errorMessage.includes('Требуется авторизация')) {
+        dispatch(setFavoriteTracks([]));
+        return [];
+      }
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
 
 const trackSlice = createSlice({
   name: 'tracks',  
@@ -117,7 +158,7 @@ const trackSlice = createSlice({
     setFetchIsLoading: (state, action: PayloadAction<boolean>) => {
       state.fetchIsLoading = action.payload;  
     },
-    addToFavorites: (state, action: PayloadAction<TrackTypes>) => {
+    addToFavoritesLocal: (state, action: PayloadAction<TrackTypes>) => {
       const track = action.payload;
       if (!state.favoriteTracks.find(fav => fav._id.toString() === track._id.toString())) {
         state.favoriteTracks.push(track);
@@ -129,7 +170,7 @@ const trackSlice = createSlice({
         }
       }
     },
-    removeFromFavorites: (state, action: PayloadAction<string | number>) => {
+    removeFromFavoritesLocal: (state, action: PayloadAction<string | number>) => {
       const trackId = action.payload;
       state.favoriteTracks = state.favoriteTracks.filter(track => track._id.toString() !== trackId.toString());
       state.favoriteTracksIds = state.favoriteTracksIds.filter(id => id !== trackId.toString());
@@ -156,7 +197,6 @@ const trackSlice = createSlice({
         }
       }
     },
-
     toggleFavorite: (state, action: PayloadAction<TrackTypes>) => {
       const track = action.payload;
       const isFavorite = state.favoriteTracksIds.includes(track._id.toString());
@@ -173,10 +213,37 @@ const trackSlice = createSlice({
         localStorage.setItem('favoriteTracksIds', JSON.stringify(state.favoriteTracksIds));
       }
     },
-
     setFilteredFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.filteredFavoriteTracks = action.payload;
     },
+    setFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
+      state.favoriteTracks = action.payload;
+      state.favoriteTracksIds = action.payload.map(track => track._id.toString());
+    },
+    setFavoriteLoading: (state, action: PayloadAction<boolean>) => {
+      state.favoriteLoading = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(toggleFavoriteAPI.pending, (state) => {
+        state.favoriteLoading = true;
+      })
+      .addCase(toggleFavoriteAPI.fulfilled, (state) => {
+        state.favoriteLoading = false;
+      })
+      .addCase(toggleFavoriteAPI.rejected, (state) => {
+        state.favoriteLoading = false;
+      })
+      .addCase(loadFavoriteTracksAPI.pending, (state) => {
+        state.favoriteLoading = true;
+      })
+      .addCase(loadFavoriteTracksAPI.fulfilled, (state) => {
+        state.favoriteLoading = false;
+      })
+      .addCase(loadFavoriteTracksAPI.rejected, (state) => {
+        state.favoriteLoading = false;
+      });
   },
 })  
 
@@ -192,10 +259,12 @@ export const {
   setAllTracks,
   setFetchError,
   setFetchIsLoading,
-  addToFavorites,
-  removeFromFavorites,
+  addToFavoritesLocal,
+  removeFromFavoritesLocal,
   loadFavoriteTracks,
   toggleFavorite,
-  setFilteredFavoriteTracks 
+  setFilteredFavoriteTracks,
+  setFavoriteTracks,
+  setFavoriteLoading,
 } = trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;

@@ -8,6 +8,34 @@ const getAccessToken = (): string => {
   }
   return '';
 };
+interface AxiosErrorLike {
+  response?: {
+    status?: number;
+  };
+}
+
+const isAxiosError = (error: unknown): error is AxiosErrorLike => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error
+  );
+};
+
+const handleAuthError = (error: unknown): never => {
+  if (isAxiosError(error) && error.response?.status === 401) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_data');
+    throw new Error('Сессия истекла. Пожалуйста, войдите снова.');
+  }
+  
+  if (error instanceof Error) {
+    throw error;
+  }
+  
+  throw new Error('Произошла неизвестная ошибка');
+};
 
 const getFallbackTracks = (): TrackTypes[] => {
   return [
@@ -130,12 +158,12 @@ export const getFavoriteTracks = async (): Promise<TrackTypes[]> => {
       }
     );
     return response.data;
-  } catch {
-    throw new Error('Не удалось загрузить избранные треки');
+  } catch (error: unknown) {
+    return handleAuthError(error);
   }
 };
 
-export const addToFavorites = async (id: string): Promise<FavoriteOperationResponse> => {
+export const addToFavorites = async (id: string | number): Promise<FavoriteOperationResponse> => {
   const accessToken = getAccessToken();
   
   if (!accessToken) {
@@ -154,12 +182,12 @@ export const addToFavorites = async (id: string): Promise<FavoriteOperationRespo
       }
     );
     return response.data;
-  } catch {
-    throw new Error(`Не удалось добавить трек ${id} в избранное`);
+  } catch (error: unknown) {
+    return handleAuthError(error);
   }
 };
 
-export const removeFromFavorites = async (id: string): Promise<FavoriteOperationResponse> => {
+export const removeFromFavorites = async (id: string | number): Promise<FavoriteOperationResponse> => {
   const accessToken = getAccessToken();
   
   if (!accessToken) {
@@ -177,8 +205,8 @@ export const removeFromFavorites = async (id: string): Promise<FavoriteOperation
       }
     );
     return response.data;
-  } catch {
-    throw new Error(`Не удалось удалить трек ${id} из избранного`);
+  } catch (error: unknown) {
+    return handleAuthError(error);
   }
 };
 
@@ -255,7 +283,7 @@ export const createSelection = async (
       }
     );
     return response.data;
-  } catch {
-    throw new Error('Не удалось создать подборку');
+  } catch (error: unknown) {
+    return handleAuthError(error);
   }
 };
