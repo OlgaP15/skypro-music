@@ -18,7 +18,7 @@ type initialStateType = {
   favoriteTracksIds: string[];
   filteredFavoriteTracks: TrackTypes[]; 
   favoriteLoading: boolean;
-  favoritesLoaded: boolean; // ДОБАВЛЕНО: флаг что избранные уже загружены
+  favoritesLoaded: boolean;
 };
 
 const initialState: initialStateType = {
@@ -36,7 +36,7 @@ const initialState: initialStateType = {
   favoriteTracksIds: [],
   filteredFavoriteTracks: [], 
   favoriteLoading: false,
-  favoritesLoaded: false, // ДОБАВЛЕНО
+  favoritesLoaded: false,
 };
 
 export const toggleFavoriteAPI = createAsyncThunk(
@@ -45,8 +45,7 @@ export const toggleFavoriteAPI = createAsyncThunk(
     try {
       const state = getState() as { tracks: initialStateType };
       const isCurrentlyFavorite = state.tracks.favoriteTracksIds.includes(track._id.toString());
-      
-      // Оптимистичное обновление UI
+
       dispatch(toggleFavorite(track));
       
       try {
@@ -57,11 +56,9 @@ export const toggleFavoriteAPI = createAsyncThunk(
         }
         return { success: true, trackId: track._id };
       } catch (error: unknown) {
-        // Если API запрос не удался, откатываем оптимистичное обновление
-        dispatch(toggleFavorite(track)); // Откатываем обратно
+        dispatch(toggleFavorite(track));
         const errorMessage = error instanceof Error ? error.message : 'Ошибка при изменении избранного';
-        
-        // Если ошибка авторизации, пробрасываем специальную ошибку
+
         if (errorMessage.includes('авторизация') || errorMessage.includes('Сессия истекла')) {
           throw new Error('AUTH_REQUIRED');
         }
@@ -86,7 +83,6 @@ export const loadFavoriteTracksAPI = createAsyncThunk(
       const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки избранных треков';
 
       if (errorMessage.includes('авторизация') || errorMessage.includes('Сессия истекла')) {
-        // Если пользователь не авторизован, очищаем избранное
         dispatch(clearFavorites());
         return [];
       }
@@ -205,7 +201,7 @@ const trackSlice = createSlice({
     clearFavorites: (state) => {
       state.favoriteTracks = [];
       state.favoriteTracksIds = [];
-      state.favoritesLoaded = false; // Сбрасываем флаг при очистке
+      state.favoritesLoaded = false; 
     },
     setFilteredFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.filteredFavoriteTracks = action.payload;
@@ -223,7 +219,6 @@ const trackSlice = createSlice({
     setFavoriteLoading: (state, action: PayloadAction<boolean>) => {
       state.favoriteLoading = action.payload;
     },
-    // ДОБАВЛЕНО: Установка флага загрузки избранных треков
     setFavoritesLoaded: (state, action: PayloadAction<boolean>) => {
       state.favoritesLoaded = action.payload;
     },
@@ -247,7 +242,6 @@ const trackSlice = createSlice({
       .addCase(loadFavoriteTracksAPI.pending, (state) => {
         state.favoriteLoading = true;
       })
-      // ДОБАВЛЕНО: Устанавливаем флаг favoritesLoaded при успешной загрузке
       .addCase(loadFavoriteTracksAPI.fulfilled, (state) => {
         state.favoriteLoading = false;
         state.favoritesLoaded = true;
@@ -280,6 +274,6 @@ export const {
   setFilteredFavoriteTracks,
   setFavoriteTracks,
   setFavoriteLoading,
-  setFavoritesLoaded, // ДОБАВЛЕНО: экспорт нового action
+  setFavoritesLoaded, 
 } = trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;

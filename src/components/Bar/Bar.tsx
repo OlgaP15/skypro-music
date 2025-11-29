@@ -11,7 +11,7 @@ import {
   setRepeat, 
   nextTrack, 
   prevTrack, 
-  toggleFavoriteAPI // ИЗМЕНЕНО: используем API thunk вместо старого toggleFavorite
+  toggleFavoriteAPI
 } from '@/store/features/trackSlice';
 
 export default function Bar() {
@@ -75,7 +75,6 @@ export default function Bar() {
 
   const handleLikeClick = () => {
     if (currentTrack) {
-      // ИЗМЕНЕНО: используем API thunk вместо старого toggleFavorite
       dispatch(toggleFavoriteAPI(currentTrack));
     }
   };

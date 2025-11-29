@@ -16,7 +16,6 @@ export default function FetchingTracks() {
   const { isAuth } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    // Загружаем все треки только если их еще нет
     if (allTracks.length === 0) {
       dispatch(setFetchIsLoading(true));
       getTracks()
@@ -39,7 +38,6 @@ export default function FetchingTracks() {
   }, [allTracks.length, dispatch]);
 
   useEffect(() => {
-    // Загружаем избранные треки только если пользователь авторизован и треки еще не загружены
     if (isAuth && !favoritesLoaded) {
       dispatch(loadFavoriteTracksAPI());
     }

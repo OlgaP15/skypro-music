@@ -9,7 +9,7 @@ import {
   setCurrentTrack, 
   setIsPlay, 
   setCurrentIndex, 
-  toggleFavoriteAPI // ИСПРАВЛЕНО: Используем API thunk
+  toggleFavoriteAPI 
 } from '@/store/features/trackSlice';
 
 type trackTypeProp = {
@@ -39,7 +39,6 @@ export default function Track({ track, index }: trackTypeProp) {
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation(); 
-    // ИСПРАВЛЕНО: Используем API thunk
     dispatch(toggleFavoriteAPI(track));
   };
 

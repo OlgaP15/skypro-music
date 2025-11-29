@@ -26,7 +26,6 @@ export default function FavoritesPage() {
       setShowSpinner(true);
       
       try {
-        // Загружаем избранные треки только если они еще не загружены
         if (!favoritesLoaded) {
           await dispatch(loadFavoriteTracksAPI()).unwrap();
         }
@@ -39,6 +38,11 @@ export default function FavoritesPage() {
     
     loadData();
   }, [dispatch, isAuth, router, favoritesLoaded]);
+
+  useEffect(() => {
+    return () => {
+      setShowSpinner(true);};
+  }, []);
 
   if (!isAuth) {
     return (

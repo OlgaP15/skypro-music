@@ -81,7 +81,6 @@ interface FavoriteApiResponse {
   [key: string]: unknown;
 }
 
-// Вспомогательная функция для извлечения массива треков из ответа API
 const extractTracksFromResponse = (data: unknown): TrackTypes[] => {
   if (Array.isArray(data)) {
     return data;
@@ -103,8 +102,7 @@ const extractTracksFromResponse = (data: unknown): TrackTypes[] => {
         return arr;
       }
     }
-    
-    // Если не нашли массив по ключам, ищем массив среди значений объекта
+
     const values = Object.values(apiResponse);
     const foundArray = values.find(value => Array.isArray(value)) as TrackTypes[] | undefined;
     if (foundArray) {
@@ -177,7 +175,6 @@ export const getFavoriteTracks = async (): Promise<TrackTypes[]> => {
 
     const favoriteTracks = extractTracksFromResponse(response.data);
 
-    // Преобразуем треки к правильному формату
     const validTracks = favoriteTracks
       .filter(track => track && typeof track === 'object')
       .map(track => ({

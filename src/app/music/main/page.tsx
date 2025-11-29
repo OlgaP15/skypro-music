@@ -45,5 +45,5 @@ export default function Home() {
     );
   }
 
-  return <Centerblock tracks={allTracks} title="Треки" />;
+  return <Centerblock tracks={allTracks} title="Треки" isFavoritePage={false} />;
 }

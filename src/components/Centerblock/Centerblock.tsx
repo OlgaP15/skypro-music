@@ -28,14 +28,21 @@ export default function Centerblock({ tracks = data, title = "Треки", isFav
   }, [tracks]); 
 
   useEffect(() => {
-    if (title === "Треки" && validTracks.length > 0 && !isFavoritePage) {
+    if (isFavoritePage) {
+      const displayTracks = (filteredFavoriteTracks && filteredFavoriteTracks.length > 0) 
+        ? filteredFavoriteTracks 
+        : (favoriteTracks || []);
+      
+      if (displayTracks.length > 0) {
+        dispatch(setCurrentPlaylist(displayTracks));
+      }
+    } else if (title === "Треки" && validTracks.length > 0) {
       dispatch(setCurrentPlaylist(validTracks));
     }
-  }, [dispatch, validTracks, title, isFavoritePage]);
+  }, [dispatch, validTracks, title, isFavoritePage, favoriteTracks, filteredFavoriteTracks]);
 
   const displayTracks = useMemo(() => {
     if (isFavoritePage) {
-      // ИЗМЕНЕНО: Используем только favoriteTracks из состояния Redux, которые загружаются через API
       return (filteredFavoriteTracks && filteredFavoriteTracks.length > 0) 
         ? filteredFavoriteTracks 
         : (favoriteTracks || []);
