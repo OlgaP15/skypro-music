@@ -45,7 +45,7 @@ export const toggleFavoriteAPI = createAsyncThunk(
     try {
       const state = getState() as { tracks: initialStateType };
       const isCurrentlyFavorite = state.tracks.favoriteTracksIds.includes(track._id.toString());
-
+      
       dispatch(toggleFavorite(track));
       
       try {
@@ -58,7 +58,7 @@ export const toggleFavoriteAPI = createAsyncThunk(
       } catch (error: unknown) {
         dispatch(toggleFavorite(track));
         const errorMessage = error instanceof Error ? error.message : 'Ошибка при изменении избранного';
-
+        
         if (errorMessage.includes('авторизация') || errorMessage.includes('Сессия истекла')) {
           throw new Error('AUTH_REQUIRED');
         }
@@ -121,6 +121,11 @@ const trackSlice = createSlice({
     },
     setCurrentIndex: (state, action: PayloadAction<number>) => {
       state.currentIndex = action.payload;
+    },
+    resetCurrentTrack: (state) => {
+      state.currentTrack = null;
+      state.isPlay = false;
+      state.currentIndex = -1;
     },
     nextTrack: (state) => {
       if (state.currentPlaylist.length === 0) return;
@@ -201,7 +206,7 @@ const trackSlice = createSlice({
     clearFavorites: (state) => {
       state.favoriteTracks = [];
       state.favoriteTracksIds = [];
-      state.favoritesLoaded = false; 
+      state.favoritesLoaded = false;
     },
     setFilteredFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.filteredFavoriteTracks = action.payload;
@@ -262,6 +267,7 @@ export const {
   setShuffle, 
   setRepeat, 
   setCurrentIndex,
+  resetCurrentTrack,
   nextTrack,
   prevTrack,
   setAllTracks,
@@ -274,6 +280,6 @@ export const {
   setFilteredFavoriteTracks,
   setFavoriteTracks,
   setFavoriteLoading,
-  setFavoritesLoaded, 
+  setFavoritesLoaded,
 } = trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;
