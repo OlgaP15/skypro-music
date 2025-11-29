@@ -206,7 +206,9 @@ const trackSlice = createSlice({
     clearFavorites: (state) => {
       state.favoriteTracks = [];
       state.favoriteTracksIds = [];
+      state.filteredFavoriteTracks = []; 
       state.favoritesLoaded = false;
+      state.favoriteLoading = false; 
     },
     setFilteredFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.filteredFavoriteTracks = action.payload;

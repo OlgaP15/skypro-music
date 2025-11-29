@@ -18,7 +18,7 @@ export default function FavoritesPage() {
 
   useEffect(() => {
     if (!isAuth) {
-      router.push('/auth/signin');
+      router.push('/');
       return;
     }
     
@@ -39,15 +39,10 @@ export default function FavoritesPage() {
     loadData();
   }, [dispatch, isAuth, router, favoritesLoaded]);
 
-  useEffect(() => {
-    return () => {
-      setShowSpinner(true);};
-  }, []);
-
   if (!isAuth) {
     return (
       <div className={styles.loadingContainer}>
-        <LoadingSpinner text="Перенаправление на страницу входа..." />
+        <LoadingSpinner text="Перенаправление на главную страницу..." />
       </div>
     );
   }

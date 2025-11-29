@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from './sidebar.module.css';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { logout } from '@/store/features/authSlice';
+import { clearFavorites } from '@/store/features/trackSlice';
 import { useRouter } from 'next/navigation';
 
 export default function Sidebar() {
@@ -14,7 +15,8 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     dispatch(logout());
-    router.push('/music/main'); 
+    dispatch(clearFavorites()); 
+    router.push('/');
   };
 
   return (
