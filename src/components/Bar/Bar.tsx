@@ -5,7 +5,14 @@ import styles from './bar.module.css';
 import classnames from 'classnames';
 import { useRef, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import { setIsPlay, setShuffle, setRepeat, nextTrack, prevTrack, toggleFavorite } from '@/store/features/trackSlice';
+import { 
+  setIsPlay, 
+  setShuffle, 
+  setRepeat, 
+  nextTrack, 
+  prevTrack, 
+  toggleFavoriteAPI // ИЗМЕНЕНО: используем API thunk вместо старого toggleFavorite
+} from '@/store/features/trackSlice';
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
@@ -68,7 +75,8 @@ export default function Bar() {
 
   const handleLikeClick = () => {
     if (currentTrack) {
-      dispatch(toggleFavorite(currentTrack));
+      // ИЗМЕНЕНО: используем API thunk вместо старого toggleFavorite
+      dispatch(toggleFavoriteAPI(currentTrack));
     }
   };
 

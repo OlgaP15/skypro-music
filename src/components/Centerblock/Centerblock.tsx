@@ -35,6 +35,7 @@ export default function Centerblock({ tracks = data, title = "Треки", isFav
 
   const displayTracks = useMemo(() => {
     if (isFavoritePage) {
+      // ИЗМЕНЕНО: Используем только favoriteTracks из состояния Redux, которые загружаются через API
       return (filteredFavoriteTracks && filteredFavoriteTracks.length > 0) 
         ? filteredFavoriteTracks 
         : (favoriteTracks || []);

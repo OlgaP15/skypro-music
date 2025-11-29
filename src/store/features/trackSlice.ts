@@ -39,16 +39,33 @@ const initialState: initialStateType = {
 
 export const toggleFavoriteAPI = createAsyncThunk(
   'tracks/toggleFavoriteAPI',
-  async ({ track, isCurrentlyFavorite }: { track: TrackTypes; isCurrentlyFavorite: boolean }, { dispatch, rejectWithValue }) => {
+  async (track: TrackTypes, { dispatch, rejectWithValue, getState }) => {
     try {
-      if (isCurrentlyFavorite) {
-        await removeFromFavorites(track._id);
-        dispatch(removeFromFavoritesLocal(track._id));
-      } else {
-        await addToFavorites(track._id);
-        dispatch(addToFavoritesLocal(track));
+      const state = getState() as { tracks: initialStateType };
+      const isCurrentlyFavorite = state.tracks.favoriteTracksIds.includes(track._id.toString());
+      
+      // Оптимистичное обновление UI
+      dispatch(toggleFavorite(track));
+      
+      try {
+        if (isCurrentlyFavorite) {
+          await removeFromFavorites(track._id);
+        } else {
+          await addToFavorites(track._id);
+        }
+        return { success: true, trackId: track._id };
+      } catch (error: unknown) {
+        // Если API запрос не удался, откатываем оптимистичное обновление
+        dispatch(toggleFavorite(track)); // Откатываем обратно
+        const errorMessage = error instanceof Error ? error.message : 'Ошибка при изменении избранного';
+        
+        // Если ошибка авторизации, пробрасываем специальную ошибку
+        if (errorMessage.includes('авторизация') || errorMessage.includes('Сессия истекла')) {
+          throw new Error('AUTH_REQUIRED');
+        }
+        
+        return rejectWithValue(errorMessage);
       }
-      return { success: true };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Ошибка при изменении избранного';
       return rejectWithValue(errorMessage);
@@ -66,8 +83,9 @@ export const loadFavoriteTracksAPI = createAsyncThunk(
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки избранных треков';
 
-      if (errorMessage.includes('Сессия истекла') || errorMessage.includes('Требуется авторизация')) {
-        dispatch(setFavoriteTracks([]));
+      if (errorMessage.includes('авторизация') || errorMessage.includes('Сессия истекла')) {
+        // Если пользователь не авторизован, очищаем избранное
+        dispatch(clearFavorites());
         return [];
       }
       return rejectWithValue(errorMessage);
@@ -158,45 +176,6 @@ const trackSlice = createSlice({
     setFetchIsLoading: (state, action: PayloadAction<boolean>) => {
       state.fetchIsLoading = action.payload;  
     },
-    addToFavoritesLocal: (state, action: PayloadAction<TrackTypes>) => {
-      const track = action.payload;
-      if (!state.favoriteTracks.find(fav => fav._id.toString() === track._id.toString())) {
-        state.favoriteTracks.push(track);
-        state.favoriteTracksIds.push(track._id.toString());
-
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('favoriteTracks', JSON.stringify(state.favoriteTracks));
-          localStorage.setItem('favoriteTracksIds', JSON.stringify(state.favoriteTracksIds));
-        }
-      }
-    },
-    removeFromFavoritesLocal: (state, action: PayloadAction<string | number>) => {
-      const trackId = action.payload;
-      state.favoriteTracks = state.favoriteTracks.filter(track => track._id.toString() !== trackId.toString());
-      state.favoriteTracksIds = state.favoriteTracksIds.filter(id => id !== trackId.toString());
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('favoriteTracks', JSON.stringify(state.favoriteTracks));
-        localStorage.setItem('favoriteTracksIds', JSON.stringify(state.favoriteTracksIds));
-      }
-    },
-    loadFavoriteTracks: (state) => {
-      if (typeof window !== 'undefined') {
-        try {
-          const savedFavorites = localStorage.getItem('favoriteTracks');
-          const savedIds = localStorage.getItem('favoriteTracksIds');
-          
-          if (savedFavorites) {
-            state.favoriteTracks = JSON.parse(savedFavorites);
-          }
-          if (savedIds) {
-            state.favoriteTracksIds = JSON.parse(savedIds);
-          }
-        } catch (error) {
-          console.error('Error loading favorite tracks from localStorage:', error);
-        }
-      }
-    },
     toggleFavorite: (state, action: PayloadAction<TrackTypes>) => {
       const track = action.payload;
       const isFavorite = state.favoriteTracksIds.includes(track._id.toString());
@@ -208,17 +187,36 @@ const trackSlice = createSlice({
         state.favoriteTracks.push(track);
         state.favoriteTracksIds.push(track._id.toString());
       }
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('favoriteTracks', JSON.stringify(state.favoriteTracks));
-        localStorage.setItem('favoriteTracksIds', JSON.stringify(state.favoriteTracksIds));
+    },
+    addToFavoritesSuccess: (state, action: PayloadAction<TrackTypes>) => {
+      const track = action.payload;
+      if (!state.favoriteTracks.find(fav => fav._id.toString() === track._id.toString())) {
+        state.favoriteTracks.push(track);
+        state.favoriteTracksIds.push(track._id.toString());
       }
+    },
+    removeFromFavoritesSuccess: (state, action: PayloadAction<string | number>) => {
+      const trackId = action.payload;
+      state.favoriteTracks = state.favoriteTracks.filter(track => track._id.toString() !== trackId.toString());
+      state.favoriteTracksIds = state.favoriteTracksIds.filter(id => id !== trackId.toString());
+    },
+    clearFavorites: (state) => {
+      state.favoriteTracks = [];
+      state.favoriteTracksIds = [];
     },
     setFilteredFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.filteredFavoriteTracks = action.payload;
     },
     setFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
-      state.favoriteTracks = action.payload;
-      state.favoriteTracksIds = action.payload.map(track => track._id.toString());
+      // ИСПРАВЛЕНО: Проверяем, что action.payload является массивом
+      if (Array.isArray(action.payload)) {
+        state.favoriteTracks = action.payload;
+        state.favoriteTracksIds = action.payload.map(track => track._id.toString());
+      } else {
+        console.error('setFavoriteTracks: action.payload is not an array', action.payload);
+        state.favoriteTracks = [];
+        state.favoriteTracksIds = [];
+      }
     },
     setFavoriteLoading: (state, action: PayloadAction<boolean>) => {
       state.favoriteLoading = action.payload;
@@ -232,8 +230,13 @@ const trackSlice = createSlice({
       .addCase(toggleFavoriteAPI.fulfilled, (state) => {
         state.favoriteLoading = false;
       })
-      .addCase(toggleFavoriteAPI.rejected, (state) => {
+      .addCase(toggleFavoriteAPI.rejected, (state, action) => {
         state.favoriteLoading = false;
+        if (action.payload === 'AUTH_REQUIRED') {
+          state.fetchError = 'Требуется авторизация';
+        } else if (action.payload) {
+          state.fetchError = action.payload as string;
+        }
       })
       .addCase(loadFavoriteTracksAPI.pending, (state) => {
         state.favoriteLoading = true;
@@ -241,8 +244,11 @@ const trackSlice = createSlice({
       .addCase(loadFavoriteTracksAPI.fulfilled, (state) => {
         state.favoriteLoading = false;
       })
-      .addCase(loadFavoriteTracksAPI.rejected, (state) => {
+      .addCase(loadFavoriteTracksAPI.rejected, (state, action) => {
         state.favoriteLoading = false;
+        if (action.payload) {
+          state.fetchError = action.payload as string;
+        }
       });
   },
 })  
@@ -259,10 +265,10 @@ export const {
   setAllTracks,
   setFetchError,
   setFetchIsLoading,
-  addToFavoritesLocal,
-  removeFromFavoritesLocal,
-  loadFavoriteTracks,
   toggleFavorite,
+  addToFavoritesSuccess,
+  removeFromFavoritesSuccess,
+  clearFavorites,
   setFilteredFavoriteTracks,
   setFavoriteTracks,
   setFavoriteLoading,
