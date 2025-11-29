@@ -4,7 +4,7 @@ import Centerblock from '@/components/Centerblock/Centerblock';
 import { useAppSelector } from '@/store/store';
 import styles from '../musicLayout.module.css';
 import { useEffect, useState } from 'react';
-import { loadFavoriteTracksAPI } from '@/store/features/trackSlice'; // ИЗМЕНЕНО: Используем API thunk
+import { loadFavoriteTracksAPI } from '@/store/features/trackSlice';
 import { useAppDispatch } from '@/store/store';
 import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
@@ -12,7 +12,7 @@ import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 export default function FavoritesPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { favoriteTracks, favoriteLoading } = useAppSelector((state) => state.tracks); 
+  const { favoriteTracks, favoriteLoading, favoritesLoaded } = useAppSelector((state) => state.tracks); 
   const { isAuth } = useAppSelector((state) => state.auth);
   const [showSpinner, setShowSpinner] = useState(true);
 
@@ -26,8 +26,10 @@ export default function FavoritesPage() {
       setShowSpinner(true);
       
       try {
-        // ИЗМЕНЕНО: Загружаем избранные треки через API вместо localStorage
-        await dispatch(loadFavoriteTracksAPI()).unwrap();
+        // Загружаем избранные треки только если они еще не загружены
+        if (!favoritesLoaded) {
+          await dispatch(loadFavoriteTracksAPI()).unwrap();
+        }
       } catch (error) {
         console.error('Ошибка загрузки избранных треков:', error);
       } finally {
@@ -36,7 +38,7 @@ export default function FavoritesPage() {
     };
     
     loadData();
-  }, [dispatch, isAuth, router]);
+  }, [dispatch, isAuth, router, favoritesLoaded]);
 
   if (!isAuth) {
     return (

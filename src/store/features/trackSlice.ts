@@ -18,6 +18,7 @@ type initialStateType = {
   favoriteTracksIds: string[];
   filteredFavoriteTracks: TrackTypes[]; 
   favoriteLoading: boolean;
+  favoritesLoaded: boolean; // ДОБАВЛЕНО: флаг что избранные уже загружены
 };
 
 const initialState: initialStateType = {
@@ -35,6 +36,7 @@ const initialState: initialStateType = {
   favoriteTracksIds: [],
   filteredFavoriteTracks: [], 
   favoriteLoading: false,
+  favoritesLoaded: false, // ДОБАВЛЕНО
 };
 
 export const toggleFavoriteAPI = createAsyncThunk(
@@ -203,12 +205,12 @@ const trackSlice = createSlice({
     clearFavorites: (state) => {
       state.favoriteTracks = [];
       state.favoriteTracksIds = [];
+      state.favoritesLoaded = false; // Сбрасываем флаг при очистке
     },
     setFilteredFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
       state.filteredFavoriteTracks = action.payload;
     },
     setFavoriteTracks: (state, action: PayloadAction<TrackTypes[]>) => {
-      // ИСПРАВЛЕНО: Проверяем, что action.payload является массивом
       if (Array.isArray(action.payload)) {
         state.favoriteTracks = action.payload;
         state.favoriteTracksIds = action.payload.map(track => track._id.toString());
@@ -220,6 +222,10 @@ const trackSlice = createSlice({
     },
     setFavoriteLoading: (state, action: PayloadAction<boolean>) => {
       state.favoriteLoading = action.payload;
+    },
+    // ДОБАВЛЕНО: Установка флага загрузки избранных треков
+    setFavoritesLoaded: (state, action: PayloadAction<boolean>) => {
+      state.favoritesLoaded = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -241,8 +247,10 @@ const trackSlice = createSlice({
       .addCase(loadFavoriteTracksAPI.pending, (state) => {
         state.favoriteLoading = true;
       })
+      // ДОБАВЛЕНО: Устанавливаем флаг favoritesLoaded при успешной загрузке
       .addCase(loadFavoriteTracksAPI.fulfilled, (state) => {
         state.favoriteLoading = false;
+        state.favoritesLoaded = true;
       })
       .addCase(loadFavoriteTracksAPI.rejected, (state, action) => {
         state.favoriteLoading = false;
@@ -272,5 +280,6 @@ export const {
   setFilteredFavoriteTracks,
   setFavoriteTracks,
   setFavoriteLoading,
+  setFavoritesLoaded, // ДОБАВЛЕНО: экспорт нового action
 } = trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;

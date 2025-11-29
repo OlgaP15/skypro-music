@@ -5,22 +5,18 @@ import {
   setAllTracks,
   setFetchError,
   setFetchIsLoading,
-  loadFavoriteTracksAPI // ИЗМЕНЕНО: Используем API thunk
+  loadFavoriteTracksAPI
 } from '@/store/features/trackSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useEffect } from 'react';
 
 export default function FetchingTracks() {
   const dispatch = useAppDispatch();
-  const { allTracks } = useAppSelector((state) => state.tracks);
-  const { isAuth } = useAppSelector((state) => state.auth); // ДОБАВЛЕНО: Проверяем авторизацию
+  const { allTracks, favoritesLoaded } = useAppSelector((state) => state.tracks);
+  const { isAuth } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    // ИЗМЕНЕНО: Загружаем избранные треки через API только если пользователь авторизован
-    if (isAuth) {
-      dispatch(loadFavoriteTracksAPI());
-    }
-
+    // Загружаем все треки только если их еще нет
     if (allTracks.length === 0) {
       dispatch(setFetchIsLoading(true));
       getTracks()
@@ -40,7 +36,14 @@ export default function FetchingTracks() {
           dispatch(setFetchIsLoading(false));
         });
     }
-  }, [allTracks.length, dispatch, isAuth]); // ДОБАВЛЕНО: isAuth в зависимостях
+  }, [allTracks.length, dispatch]);
+
+  useEffect(() => {
+    // Загружаем избранные треки только если пользователь авторизован и треки еще не загружены
+    if (isAuth && !favoritesLoaded) {
+      dispatch(loadFavoriteTracksAPI());
+    }
+  }, [isAuth, favoritesLoaded, dispatch]);
   
   return <></>;
 }
