@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { login, clearError } from '@/store/features/authSlice';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 export default function Signin() {
   const dispatch = useAppDispatch();
@@ -26,40 +27,43 @@ export default function Signin() {
     }
   }, [isAuth, router]);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim() || !password.trim()) {
-      alert('Заполните все поля');
+      toast.error('Заполните все поля');
       return;
     }
 
     try {
       const result = await dispatch(login({ email, password }));
-      
+
       if (login.fulfilled.match(result)) {
-        console.log('Login successful');
+        toast.success('Вход выполнен успешно!');
         router.push('/');
       }
-    } catch (err) {
-      console.error('Login error:', err);
-    }
+    } catch {}
   };
 
   return (
     <>
       <Link href="/">
         <div className={styles.modal__logo}>
-          <Image 
-            src="/img/logo_modal.png" 
-            alt="logo" 
-            width={140} 
-            height={21} 
+          <Image
+            src="/img/logo_modal.png"
+            alt="logo"
+            width={140}
+            height={21}
             priority
           />
         </div>
       </Link>
-      
       <form onSubmit={handleLogin} className={styles.modal__form}>
         <input
           className={classNames(styles.modal__input, styles.login)}
@@ -79,13 +83,6 @@ export default function Signin() {
           required
           disabled={loading}
         />
-        
-        {error && (
-          <div className={styles.errorContainer}>
-            {error}
-          </div>
-        )}
-        
         <button
           type="submit"
           disabled={loading}
@@ -94,9 +91,8 @@ export default function Signin() {
           {loading ? 'Загрузка...' : 'Войти'}
         </button>
       </form>
-      
-      <Link 
-        href="/auth/signup" 
+      <Link
+        href="/auth/signup"
         className={styles.modal__btnSignup}
         onClick={(e) => loading && e.preventDefault()}
       >

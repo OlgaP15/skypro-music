@@ -47,13 +47,13 @@ export default function Navigation() {
               Мои треки
             </Link>
           </li>
-          <li className={styles.menu__item}>
-            {!isAuth && (
+          {!isAuth && (
+            <li className={styles.menu__item}>
               <Link href="/auth/signin" className={styles.menu__link}>
                 Войти
               </Link>
-            )}
-          </li>
+            </li>
+          )}
         </ul>
       </div>
     </nav>

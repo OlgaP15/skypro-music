@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { register, clearError } from '@/store/features/authSlice';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 export default function Signup() {
   const dispatch = useAppDispatch();
@@ -22,21 +23,27 @@ export default function Signup() {
     dispatch(clearError());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email.trim() || !username.trim() || !password.trim() || !repeat.trim()) {
-      alert("Заполните все поля");
+      toast.error("Заполните все поля");
       return;
     }
 
     if (password !== repeat) {
-      alert("Пароли не совпадают");
+      toast.error("Пароли не совпадают");
       return;
     }
 
     if (password.length < 6) {
-      alert("Пароль должен содержать минимум 6 символов");
+      toast.error("Пароль должен содержать минимум 6 символов");
       return;
     }
 
@@ -44,12 +51,10 @@ export default function Signup() {
       const result = await dispatch(register({ email, username, password }));
       
       if (register.fulfilled.match(result)) {
-        alert('Регистрация успешна! Теперь вы можете войти.');
+        toast.success('Регистрация успешна! Теперь вы можете войти.');
         router.push('/auth/signin');
       }
-    } catch (err) {
-      console.error("Ошибка регистрации:", err);
-    }
+    } catch {}
   };
 
   return (
@@ -65,7 +70,6 @@ export default function Signup() {
           />
         </div>
       </Link>
-
       <form onSubmit={handleRegister} className={styles.modal__form}>
         <input
           className={classNames(styles.modal__input, styles.login)}
@@ -76,7 +80,6 @@ export default function Signup() {
           required
           disabled={loading}
         />
-
         <input
           className={classNames(styles.modal__input)}
           type="email"
@@ -86,7 +89,6 @@ export default function Signup() {
           required
           disabled={loading}
         />
-
         <input
           className={classNames(styles.modal__input)}
           type="password"
@@ -97,7 +99,6 @@ export default function Signup() {
           disabled={loading}
           minLength={6}
         />
-
         <input
           className={classNames(styles.modal__input)}
           type="password"
@@ -108,13 +109,6 @@ export default function Signup() {
           disabled={loading}
           minLength={6}
         />
-
-        {error && (
-          <div className={styles.errorContainer}>
-            {error}
-          </div>
-        )}
-
         <button
           type="submit"
           disabled={loading}
@@ -123,7 +117,6 @@ export default function Signup() {
           {loading ? 'Загрузка...' : 'Зарегистрироваться'}
         </button>
       </form>
-
       <Link 
         href="/auth/signin" 
         className={styles.modal__btnSignup}
